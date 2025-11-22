@@ -97,10 +97,21 @@ def register_view(request):
             messages.error(request, "Admin account already exists.")
             return render(request, 'register.html', {'admin_exists': admin_exists})
         
-        user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
+        # Create user
+        user = User.objects.create_user(
+            username=email, 
+            email=email, 
+            password=password, 
+            first_name=first_name, 
+            last_name=last_name
+        )
         
-        # Update profile (created by signal)
-        profile = user.profile
+        # Get or create profile (signal should create it)
+        try:
+            profile = user.profile
+        except Profile.DoesNotExist:
+            profile = Profile.objects.create(user=user)
+        
         profile.contact_number = contact_number
         profile.role = role
         profile.save()
@@ -111,7 +122,7 @@ def register_view(request):
             user.is_superuser = True
             user.is_active = True
             user.save()
-            messages.success(request, "Admin account created. You can now log in.")
+            messages.success(request, "Admin account created successfully! You can now log in.")
         else:
             user.is_active = False  # Regular users need approval
             user.save()

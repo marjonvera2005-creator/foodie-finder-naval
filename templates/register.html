@@ -42,7 +42,7 @@
                     <option value="user">Regular User</option>
                     <option value="restaurant">Restaurant Owner</option>
                     {% if not admin_exists %}
-                    <option value="admin">Admin</option>
+                    <option value="admin">🔑 Admin (First Admin)</option>
                     {% endif %}
                 </select>
             </div>
@@ -66,7 +66,11 @@
     <p class="muted">Already have an account? <a href="{% url 'login' %}">Login</a></p>
     {% if not admin_exists %}
     <p class="muted" style="color: var(--accent); font-size: 14px; margin-top: 10px;">
-        <i class="fa-solid fa-info-circle"></i> Admin role available - first admin account
+        <i class="fa-solid fa-info-circle"></i> Admin role available - Create the first admin account
+    </p>
+    {% else %}
+    <p class="muted" style="color: var(--muted); font-size: 14px; margin-top: 10px;">
+        <i class="fa-solid fa-check-circle"></i> Admin account already exists
     </p>
     {% endif %}
 </section>
