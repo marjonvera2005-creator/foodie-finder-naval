@@ -65,14 +65,7 @@ CATEGORY_SUGGESTIONS = [
 ]
 
 
-# Admin email whitelist
-ADMIN_EMAILS = [
-    'admin@foodiefinder.com',
-    'manager@foodiefinder.com', 
-    'supervisor@foodiefinder.com',
-    'director@foodiefinder.com',
-    'owner@foodiefinder.com'
-]
+
 
 def landing_view(request):
     return render(request, 'landing.html')
@@ -80,7 +73,7 @@ def landing_view(request):
 
 def register_view(request):
     # Check if admin already exists
-    admin_exists = Profile.objects.filter(role='admin').exists()
+    admin_exists = User.objects.filter(is_superuser=True).exists()
     
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '').strip()
@@ -106,12 +99,11 @@ def register_view(request):
         
         user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
         
-        # Create profile with role
-        profile = Profile.objects.create(
-            user=user,
-            contact_number=contact_number,
-            role=role
-        )
+        # Update profile (created by signal)
+        profile = user.profile
+        profile.contact_number = contact_number
+        profile.role = role
+        profile.save()
         
         # Set admin privileges if admin role
         if role == 'admin':
