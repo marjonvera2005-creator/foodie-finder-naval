@@ -8,9 +8,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
 
 # Allowed hosts
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
-if ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']  # Allow all hosts for now
 
 # Database
 DATABASES = {
