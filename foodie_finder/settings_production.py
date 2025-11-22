@@ -8,9 +8,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
 
 # Allowed hosts
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ['*']  # Fallback for Render
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+if ALLOWED_HOSTS == ['']:
+    ALLOWED_HOSTS = ['*']
 
 # Database
 DATABASES = {
