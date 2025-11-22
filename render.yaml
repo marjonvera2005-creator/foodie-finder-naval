@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: foodie-finder
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn foodie_finder.wsgi --log-file -"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: foodie_finder.settings_production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+
+databases:
+  - name: foodie-finder-db
+    databaseName: foodie_finder
+    user: foodie_finder
