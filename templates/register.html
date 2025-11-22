@@ -41,6 +41,9 @@
                 <select name="role" required>
                     <option value="user">Regular User</option>
                     <option value="restaurant">Restaurant Owner</option>
+                    {% if not admin_exists %}
+                    <option value="admin">Admin</option>
+                    {% endif %}
                 </select>
             </div>
         </div>
@@ -61,6 +64,11 @@
         <button class="btn primary full" type="submit">Register</button>
     </form>
     <p class="muted">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    {% if not admin_exists %}
+    <p class="muted" style="color: var(--accent); font-size: 14px; margin-top: 10px;">
+        <i class="fa-solid fa-info-circle"></i> Admin role available - first admin account
+    </p>
+    {% endif %}
 </section>
 {% endblock %}
 

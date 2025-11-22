@@ -79,6 +79,9 @@ def landing_view(request):
 
 
 def register_view(request):
+    # Check if admin already exists
+    admin_exists = Profile.objects.filter(role='admin').exists()
+    
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
@@ -86,41 +89,45 @@ def register_view(request):
         email = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
         confirm = request.POST.get('confirm_password', '')
+        role = request.POST.get('role', 'user')
 
         if password != confirm or not email:
             messages.error(request, "Please check your inputs.")
-            return render(request, 'register.html')
+            return render(request, 'register.html', {'admin_exists': admin_exists})
 
         if User.objects.filter(username=email).exists():
             messages.error(request, "Email already registered.")
-            return render(request, 'register.html')
+            return render(request, 'register.html', {'admin_exists': admin_exists})
 
-        role = request.POST.get('role', 'user')
+        # Prevent admin registration if admin already exists
+        if role == 'admin' and admin_exists:
+            messages.error(request, "Admin account already exists.")
+            return render(request, 'register.html', {'admin_exists': admin_exists})
         
         user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
         
-        # Set role and admin privileges
-        profile = getattr(user, 'profile', None)
-        if profile:
-            profile.contact_number = contact_number
-            if email in ADMIN_EMAILS:
-                profile.role = 'admin'
-                user.is_staff = True
-                user.is_superuser = True
-                user.is_active = True  # Admins are auto-approved
-            else:
-                profile.role = role
-                user.is_active = False  # Regular users need approval
-            profile.save()
+        # Create profile with role
+        profile = Profile.objects.create(
+            user=user,
+            contact_number=contact_number,
+            role=role
+        )
+        
+        # Set admin privileges if admin role
+        if role == 'admin':
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
             user.save()
-            
-        if email in ADMIN_EMAILS:
             messages.success(request, "Admin account created. You can now log in.")
         else:
+            user.is_active = False  # Regular users need approval
+            user.save()
             messages.info(request, "Registration successful. Your account is pending admin approval.")
+        
         return redirect('login')
 
-    return render(request, 'register.html')
+    return render(request, 'register.html', {'admin_exists': admin_exists})
 
 
 def login_view(request):
