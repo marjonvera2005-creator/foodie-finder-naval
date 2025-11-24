@@ -123,6 +123,10 @@ def register_view(request):
             user.is_active = True
             user.save()
             messages.success(request, "Admin account created successfully! You can now log in.")
+        elif role == 'restaurant':
+            user.is_active = True  # Auto-approve restaurant accounts
+            user.save()
+            messages.success(request, "Restaurant account created successfully! You can now log in.")
         else:
             user.is_active = False  # Regular users need approval
             user.save()
@@ -149,10 +153,11 @@ def login_view(request):
             # Role-based redirection
             profile = getattr(user, 'profile', None)
             if profile:
-                if profile.role == 'admin':
+                if profile.role == 'admin' or user.is_superuser:
                     return redirect('admin-dashboard')
                 elif profile.role == 'restaurant':
                     return redirect('restaurant-dashboard')
+            # Default to main page for regular users
             return redirect('main')
         messages.error(request, "Invalid email or password.")
         return render(request, 'login.html')
@@ -617,7 +622,7 @@ def restaurant_dashboard(request):
         profile.restaurant = restaurant
         profile.save()
     
-    featured_restos = Restaurant.objects.filter(featured=True)[:6]
+    featured_restos = Restaurant.objects.filter(featured=True).prefetch_related('dishes')[:6]
     categories = list(Restaurant.objects.values_list('category', flat=True).distinct())
     
     return render(request, 'restaurant/dashboard.html', {

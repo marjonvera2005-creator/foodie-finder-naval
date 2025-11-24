@@ -3,305 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foodie Finder - {% block title %}{% endblock %}</title>
-    <link rel="icon" href="/static/img/LOGO.png" sizes="32x32">
+    <title>Restaurant Dashboard - Foodie Finder</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #F54749 0%, #FFB703 100%);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .sidebar .nav-link {
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 5px 10px;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        .main-content {
-            background: url('/static/img/background.jpg') center/cover no-repeat, #f8f9fa;
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('/static/img/background.jpg') center/cover no-repeat fixed;
             min-height: 100vh;
         }
-        .restaurant-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            background: linear-gradient(135deg, #F54749 0%, #FFB703 100%);
-            color: white;
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            padding: 15px 0;
         }
-        .back-btn {
-            background: linear-gradient(135deg, #F54749 0%, #FFB703 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(245, 71, 73, 0.4);
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #F54749 !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            margin: 0 10px;
             transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #F54749 !important;
+        }
+
+        .restaurant-header {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+
+        .restaurant-controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 71, 73, 0.3);
+            color: white;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #F54749;
+            box-shadow: 0 0 0 3px rgba(245, 71, 73, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            text-decoration: none;
+            justify-content: center;
         }
-        .back-btn:hover {
-            background: linear-gradient(135deg, #e53e3e 0%, #F54749 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 71, 73, 0.6);
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #666;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            border-color: #F54749;
             color: white;
         }
-        .back-btn:active {
-            transform: translateY(0);
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
         }
-        .sidebar-logo {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            margin-bottom: 20px;
+
+        .restaurant-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .featured-card {
-            border: none;
+
+        .restaurant-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .restaurant-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            color: white;
+            padding: 5px 12px;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            font-size: 12px;
+            font-weight: 600;
         }
-        .featured-card:hover {
-            transform: translateY(-5px);
+
+        .restaurant-info {
+            padding: 20px;
+        }
+
+        .restaurant-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .restaurant-category {
+            color: #F54749;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .restaurant-location {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .restaurant-location i {
+            margin-right: 5px;
+            color: #F54749;
+        }
+
+        .menu-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .menu-item {
+            background: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .restaurant-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .price-range {
+            color: #F54749;
+            font-weight: 600;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-filters {
+                justify-content: center;
+            }
+            
+            .restaurant-controls {
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3 text-center">
-                    <img src="/static/img/LOGO.png" alt="Foodie Finder" class="sidebar-logo">
-                    <h2 class="text-white mb-4"><i class="fas fa-store"></i> Restaurant</h2>
-                    <nav class="nav flex-column">
-                        <a class="nav-link active" href="{% url 'restaurant-dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                        <a class="nav-link" href="{% url 'restaurant-edit' %}"><i class="fas fa-edit"></i> Edit Restaurant</a>
-                        <a class="nav-link" href="{% url 'restaurant-dishes' %}"><i class="fas fa-utensils"></i> Manage Dishes</a>
-                        <a class="nav-link" href="{% url 'restaurant-menu-categories' %}"><i class="fas fa-list"></i> Menu Categories</a>
-                        <a class="nav-link" href="{% url 'restaurant-images' %}"><i class="fas fa-images"></i> Manage Images</a>
-                        <hr class="text-white">
-                        <a class="nav-link" href="{% url 'main' %}"><i class="fas fa-globe"></i> View Site</a>
-                        <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </nav>
-                </div>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            {% load static %}
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{% static 'img/LOGO.png' %}" alt="Logo" width="40" height="40" class="me-2">
+                Foodie Finder
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="nav-link">Welcome, {{ user.get_full_name|default:user.username }}!</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link logout-btn" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
             </div>
+        </div>
+    </nav>
 
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 main-content">
-                <div class="p-4">
-                    <div class="d-flex justify-content-end mb-3 gap-2">
-                        <a href="{% url 'about' %}" class="btn btn-outline-secondary"><i class="fas fa-info-circle"></i> About</a>
-                        <button type="button" class="back-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Back</button>
-                    </div>
-                    <h2 class="mb-4">Welcome, {{ restaurant.name }}!</h2>
-                    
-                    <!-- Restaurant Info Card -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card restaurant-card">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-3">
-                                            {% if restaurant.thumbnail %}
-                                            <img src="{{ restaurant.thumbnail.url }}" alt="{{ restaurant.name }}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">
-                                            {% else %}
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 150px;">
-                                                <i class="fas fa-store fa-3x text-muted"></i>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-9">
-                                            <h3>{{ restaurant.name }}</h3>
-                                            <p class="mb-2"><i class="fas fa-map-marker-alt"></i> {{ restaurant.location }}</p>
-                                            <p class="mb-2"><i class="fas fa-tag"></i> {{ restaurant.category }}</p>
-                                            <p class="mb-2"><i class="fas fa-clock"></i> {{ restaurant.open_time }} - {{ restaurant.close_time }}</p>
-                                            <div class="mt-3">
-                                                <a href="{% url 'restaurant-edit' %}" class="btn btn-light"><i class="fas fa-edit"></i> Edit Details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Restaurant Header -->
+    <div class="restaurant-header">
+        <div class="container text-center">
+            <h1><i class="fas fa-store"></i> {{ restaurant.name }} Dashboard</h1>
+            <p class="mb-0">Manage your restaurant information and menu</p>
+        </div>
+    </div>
 
-                    <!-- Quick Actions -->
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-utensils fa-2x text-primary mb-2"></i>
-                                    <h5>Manage Dishes</h5>
-                                    <a href="{% url 'restaurant-dishes' %}" class="btn btn-primary">View Dishes</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-images fa-2x text-success mb-2"></i>
-                                    <h5>Manage Images</h5>
-                                    <a href="{% url 'restaurant-images' %}" class="btn btn-success">View Images</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-plus fa-2x text-warning mb-2"></i>
-                                    <h5>Add Dish</h5>
-                                    <a href="{% url 'restaurant-dish-create' %}" class="btn btn-warning">Add New</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-upload fa-2x text-info mb-2"></i>
-                                    <h5>Add Images</h5>
-                                    <a href="{% url 'restaurant-images-add' %}" class="btn btn-info">Upload</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Map Location Editor -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Set Restaurant Location</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted">Click on the map to set your restaurant's exact location</p>
-                                    <div id="locationMap" style="height: 400px; border-radius: 8px;"></div>
-                                    <div class="mt-3">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Latitude:</label>
-                                                <input type="text" id="currentLat" class="form-control" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Longitude:</label>
-                                                <input type="text" id="currentLng" class="form-control" readonly>
-                                            </div>
-                                        </div>
-                                        <button id="saveLocation" class="btn btn-success mt-3">
-                                            <i class="fas fa-save"></i> Save Location
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% comment %} <!-- Featured Restaurants (What users see) -->
-                    <div class="row">
-                        <div class="col-12">
-                            <h4 class="mb-3">Featured Restaurants (User View)</h4>
-                            <div class="row">
-                                {% for resto in featured %}
-                                <div class="col-md-4 mb-3">
-                                    <div class="card featured-card">
-                                        {% if resto.thumbnail %}
-                                        <img src="{{ resto.thumbnail.url }}" class="card-img-top" alt="{{ resto.name }}" style="height: 200px; object-fit: cover;">
-                                        {% endif %}
-                                        <div class="card-body">
-                                            <h5 class="card-title">{{ resto.name }}</h5>
-                                            <p class="card-text">
-                                                <small class="text-muted">{{ resto.category }} • {{ resto.location }}</small>
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="badge bg-secondary">{{ resto.category }}</span>
-                                                {% if resto.is_open_now %}
-                                                <span class="badge bg-success">Open</span>
-                                                {% else %}
-                                                <span class="badge bg-danger">Closed</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="col-12">
-                                    <p class="text-muted">No featured restaurants available.</p>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
+    <!-- Restaurant Controls -->
+    <div class="container">
+        <div class="restaurant-controls">
+            <div class="row text-center">
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'restaurant-edit' %}" class="control-btn">
+                        <i class="fas fa-edit"></i> Edit Restaurant
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'restaurant-dishes' %}" class="control-btn">
+                        <i class="fas fa-utensils"></i> Manage Menu
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'restaurant-images' %}" class="control-btn">
+                        <i class="fas fa-images"></i> Manage Images
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'restaurant-menu-categories' %}" class="control-btn">
+                        <i class="fas fa-list"></i> View Menu
+                    </a>
                 </div>
             </div>
         </div>
-    </div> {% endcomment %}
+
+        <!-- Main Content (Same as main page but with restaurant controls) -->
+        <div class="main-content">
+            <!-- Search Section -->
+            <div class="search-container">
+                <form method="GET" action="{% url 'search-results' %}">
+                    <input type="text" name="q" class="search-input" placeholder="Search for restaurants, dishes, or categories..." 
+                           id="searchInput" autocomplete="off">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
+            </div>
+
+            <!-- Category Filters -->
+            <div class="category-filters">
+                <button class="category-btn active" onclick="filterByCategory('all')">All Food</button>
+                {% for category in categories %}
+                <button class="category-btn" onclick="filterByCategory('{{ category }}')">{{ category }}</button>
+                {% endfor %}
+            </div>
+
+            <!-- Featured Restaurants -->
+            <h3 class="mb-4"><i class="fas fa-star text-warning"></i> Featured Restaurants</h3>
+            <div class="restaurant-grid">
+                {% for resto in featured %}
+                <div class="restaurant-card" data-category="{{ resto.category }}">
+                    {% if resto.thumbnail %}
+                    <img src="{{ resto.thumbnail.url }}" alt="{{ resto.name }}" class="restaurant-image">
+                    {% else %}
+                    <div class="restaurant-image" style="background: linear-gradient(135deg, #F54749, #FFB703); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if resto.featured %}
+                    <div class="restaurant-badge">Featured</div>
+                    {% endif %}
+                    
+                    <div class="restaurant-info">
+                        <h4 class="restaurant-name">{{ resto.name }}</h4>
+                        <div class="restaurant-category">{{ resto.category }}</div>
+                        <div class="restaurant-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ resto.location }}
+                        </div>
+                        
+                        <div class="menu-preview">
+                            {% for dish in resto.dishes.all|slice:":3" %}
+                            <span class="menu-item">{{ dish.name }}</span>
+                            {% endfor %}
+                            {% if resto.dishes.count > 3 %}
+                            <span class="menu-item">+{{ resto.dishes.count|add:"-3" }} more</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="restaurant-footer">
+                            <div class="price-range">
+                                {% with resto.dishes.first as first_dish %}
+                                {% if first_dish %}
+                                {{ first_dish.price_tier }}
+                                {% else %}
+                                ₱₱
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            <a href="{% url 'restaurant-detail' resto.pk %}" class="view-btn">
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No featured restaurants available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-    // Map for location editing
-    const currentLat = {{ restaurant.latitude|default:"11.5564" }};
-    const currentLng = {{ restaurant.longitude|default:"124.2595" }};
-    
-    const locationMap = L.map('locationMap').setView([currentLat, currentLng], 16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(locationMap);
-    
-    let locationMarker = L.marker([currentLat, currentLng], {draggable: true}).addTo(locationMap);
-    
-    // Update coordinate displays
-    function updateCoordinates(lat, lng) {
-        document.getElementById('currentLat').value = lat.toFixed(6);
-        document.getElementById('currentLng').value = lng.toFixed(6);
-    }
-    
-    // Initialize coordinates
-    updateCoordinates(currentLat, currentLng);
-    
-    // Handle marker drag
-    locationMarker.on('dragend', function(e) {
-        const pos = e.target.getLatLng();
-        updateCoordinates(pos.lat, pos.lng);
-    });
-    
-    // Handle map click
-    locationMap.on('click', function(e) {
-        locationMarker.setLatLng(e.latlng);
-        updateCoordinates(e.latlng.lat, e.latlng.lng);
-    });
-    
-    // Save location
-    document.getElementById('saveLocation').addEventListener('click', function() {
-        const lat = document.getElementById('currentLat').value;
-        const lng = document.getElementById('currentLng').value;
-        
-        fetch('{% url "restaurant-update-location" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({latitude: lat, longitude: lng})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Location updated successfully!');
-            } else {
-                alert('Error updating location');
+        // Search suggestions functionality
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDropdown = document.getElementById('suggestionsDropdown');
+        let debounceTimer;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDropdown.style.display = 'none';
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch(`/suggest-foods/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displaySuggestions(data.suggestions);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                    });
+            }, 300);
+        });
+
+        function displaySuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                suggestionsDropdown.style.display = 'none';
+                return;
+            }
+            
+            suggestionsDropdown.innerHTML = suggestions.map(suggestion => 
+                `<div class="suggestion-item" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>`
+            ).join('');
+            
+            suggestionsDropdown.style.display = 'block';
+        }
+
+        function selectSuggestion(suggestion) {
+            searchInput.value = suggestion;
+            suggestionsDropdown.style.display = 'none';
+            searchInput.form.submit();
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!searchInput.contains(event.target) && !suggestionsDropdown.contains(event.target)) {
+                suggestionsDropdown.style.display = 'none';
             }
         });
-    });
+
+        // Category filtering
+        function filterByCategory(category) {
+            const cards = document.querySelectorAll('.restaurant-card');
+            const buttons = document.querySelectorAll('.category-btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
     </script>
 </body>
 </html>
