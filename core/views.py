@@ -106,15 +106,12 @@ def register_view(request):
             last_name=last_name
         )
         
-        # Get or create profile (signal should create it)
-        try:
-            profile = user.profile
-        except Profile.DoesNotExist:
-            profile = Profile.objects.create(user=user)
-        
-        profile.contact_number = contact_number
-        profile.role = role
-        profile.save()
+        # Create profile
+        profile = Profile.objects.create(
+            user=user,
+            contact_number=contact_number,
+            role=role
+        )
         
         # Set admin privileges if admin role
         if role == 'admin':
@@ -128,9 +125,9 @@ def register_view(request):
             user.save()
             messages.success(request, "Restaurant account created successfully! You can now log in.")
         else:
-            user.is_active = False  # Regular users need approval
+            user.is_active = True  # Auto-approve regular users for now
             user.save()
-            messages.info(request, "Registration successful. Your account is pending admin approval.")
+            messages.success(request, "Account created successfully! You can now log in.")
         
         return redirect('login')
 
@@ -150,13 +147,16 @@ def login_view(request):
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name or user.username}!")
             
-            # Role-based redirection
+            # Create profile if missing
             profile = getattr(user, 'profile', None)
-            if profile:
-                if profile.role == 'admin' or user.is_superuser:
-                    return redirect('admin-dashboard')
-                elif profile.role == 'restaurant':
-                    return redirect('restaurant-dashboard')
+            if not profile:
+                profile = Profile.objects.create(user=user, role='user')
+            
+            # Role-based redirection
+            if profile.role == 'admin' or user.is_superuser:
+                return redirect('admin-dashboard')
+            elif profile.role == 'restaurant':
+                return redirect('restaurant-dashboard')
             # Default to main page for regular users
             return redirect('main')
         messages.error(request, "Invalid email or password.")
