@@ -147,16 +147,20 @@ def login_view(request):
             login(request, user)
             messages.success(request, f"Welcome, {user.first_name or user.username}!")
             
+            # Check if user is admin first
+            if user.is_superuser or user.is_staff:
+                return redirect('admin-dashboard')
+            
             # Create profile if missing
-            profile = getattr(user, 'profile', None)
-            if not profile:
+            try:
+                profile = user.profile
+            except Profile.DoesNotExist:
                 profile = Profile.objects.create(user=user, role='user')
             
             # Role-based redirection
-            if profile.role == 'admin' or user.is_superuser:
-                return redirect('admin-dashboard')
-            elif profile.role == 'restaurant':
+            if profile.role == 'restaurant':
                 return redirect('restaurant-dashboard')
+            
             # Default to main page for regular users
             return redirect('main')
         messages.error(request, "Invalid email or password.")
@@ -346,7 +350,7 @@ def advertisement_view(request):
 # ------------------------
 
 def _ensure_superuser(user):
-    return user.is_authenticated and user.is_superuser
+    return user.is_authenticated and (user.is_superuser or user.is_staff)
 
 
 def _admin_required(view_func):
@@ -420,31 +424,38 @@ def admin_register_view(request):
 
 @_admin_required
 def admin_dashboard(request):
-    from .models import AboutContent
-    
-    stats = {
-        'restaurants': Restaurant.objects.count(),
-        'dishes': Dish.objects.count(),
-        'users': User.objects.count(),
-        'pending_restaurants': Restaurant.objects.filter(is_approved=False).count(),
-        'pending_users': User.objects.filter(is_active=False).count(),
-    }
-    recent_restos = Restaurant.objects.order_by('-id')[:6]
-    recent_dishes = Dish.objects.select_related('restaurant').order_by('-id')[:6]
-    users = User.objects.all().order_by('-date_joined')
-    all_restaurants = Restaurant.objects.all().order_by('-id')
-    pending_users = User.objects.filter(is_active=False).order_by('-date_joined')
-    about_content = AboutContent.objects.first()
-    
-    return render(request, 'admin/dashboard.html', {
-        "stats": stats, 
-        "recent_restos": recent_restos, 
-        "recent_dishes": recent_dishes,
-        "users": users,
-        "all_restaurants": all_restaurants,
-        "pending_users": pending_users,
-        "about_content": about_content
-    })
+    try:
+        stats = {
+            'restaurants': Restaurant.objects.count(),
+            'dishes': Dish.objects.count(),
+            'users': User.objects.count(),
+            'pending_restaurants': Restaurant.objects.filter(is_approved=False).count(),
+            'pending_users': User.objects.filter(is_active=False).count(),
+        }
+        recent_restos = Restaurant.objects.order_by('-id')[:6]
+        recent_dishes = Dish.objects.select_related('restaurant').order_by('-id')[:6]
+        users = User.objects.all().order_by('-date_joined')
+        all_restaurants = Restaurant.objects.all().order_by('-id')
+        pending_users = User.objects.filter(is_active=False).order_by('-date_joined')
+        
+        return render(request, 'admin/dashboard.html', {
+            "stats": stats, 
+            "recent_restos": recent_restos, 
+            "recent_dishes": recent_dishes,
+            "users": users,
+            "all_restaurants": all_restaurants,
+            "pending_users": pending_users,
+        })
+    except Exception as e:
+        messages.error(request, f"Dashboard error: {str(e)}")
+        return render(request, 'admin/dashboard.html', {
+            "stats": {'restaurants': 0, 'dishes': 0, 'users': 0, 'pending_restaurants': 0, 'pending_users': 0},
+            "recent_restos": [],
+            "recent_dishes": [],
+            "users": [],
+            "all_restaurants": [],
+            "pending_users": [],
+        })
 
 
 # --- Restaurant management ---
