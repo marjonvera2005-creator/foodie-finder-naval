@@ -7,1010 +7,145 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: fixed;
-            width: 250px;
-            z-index: 1000;
-        }
-        .sidebar .nav-link {
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 5px 10px;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        .main-content {
-            margin-left: 250px;
+        body {
             background: url('/static/img/background.jpg') center/cover no-repeat fixed, #f8f9fa;
-            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
         }
-        .stats-card {
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+        }
+        .card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .sidebar-logo {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 15px;
-        }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-        .table-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
+        }
+        .stats-card {
+            text-align: center;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .btn-action {
-            padding: 5px 10px;
-            margin: 2px;
-            border-radius: 5px;
+        .btn-admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            font-size: 12px;
-        }
-        .btn-approve { background: #28a745; color: white; }
-        .btn-reject { background: #dc3545; color: white; }
-        .btn-delete { background: #6c757d; color: white; }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -250px;
-                transition: left 0.3s ease;
-                z-index: 1050;
-            }
-            .sidebar.show {
-                left: 0;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 10px;
-            }
-            .mobile-toggle {
-                display: block;
-                position: fixed;
-                top: 15px;
-                left: 15px;
-                z-index: 1060;
-                background: #667eea;
-                color: white;
-                border: none;
-                padding: 10px;
-                border-radius: 5px;
-            }
-            .table-responsive {
-                font-size: 12px;
-            }
-            .btn-action {
-                padding: 3px 6px;
-                font-size: 10px;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .mobile-toggle {
-                display: none;
-            }
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <!-- Mobile Toggle Button -->
-        <button class="mobile-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="p-3 text-center">
-                {% load static %}
-                <img src="{% static 'img/LOGO.png' %}" alt="Foodie Finder" class="sidebar-logo">
-                <h4 class="text-white mb-4">Admin Panel</h4>
-                <nav class="nav flex-column">
-                    <a class="nav-link active" href="#" onclick="showSection('dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    <a class="nav-link" href="#" onclick="showSection('restaurants')"><i class="fas fa-store"></i> Restaurants</a>
-                    <a class="nav-link" href="#" onclick="showSection('users')"><i class="fas fa-users"></i> Users</a>
-                    <a class="nav-link" href="{% url 'main' %}"><i class="fas fa-home"></i> Foodie Site</a>
-                    <hr class="text-white">
-                    <a class="nav-link" href="{% url 'admin-logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="p-4">
-                <!-- Dashboard Section -->
-                <div id="dashboard-section" class="content-section active">
-                    <h2 class="mb-4">Dashboard Overview</h2>
-                    
-                    <!-- Stats Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="card stats-card text-white bg-primary">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-store fa-2x mb-2"></i>
-                                    <h5 class="card-title">Restaurants</h5>
-                                    <h3>{{ stats.restaurants }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stats-card text-white bg-success">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-utensils fa-2x mb-2"></i>
-                                    <h5 class="card-title">Dishes</h5>
-                                    <h3>{{ stats.dishes }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stats-card text-white bg-info">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-users fa-2x mb-2"></i>
-                                    <h5 class="card-title">Users</h5>
-                                    <h3>{{ stats.users }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stats-card text-white bg-warning">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-clock fa-2x mb-2"></i>
-                                    <h5 class="card-title">Pending Users</h5>
-                                    <h3>{{ stats.pending_users }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fas fa-store"></i> Recent Restaurants</h5>
-                                </div>
-                                <div class="card-body">
-                                    {% for resto in recent_restos %}
-                                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                                        <div>
-                                            <h6 class="mb-0">{{ resto.name }}</h6>
-                                            <small class="text-muted">{{ resto.category }} - {{ resto.location }}</small>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p class="text-muted">No restaurants yet.</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fas fa-utensils"></i> Recent Dishes</h5>
-                                </div>
-                                <div class="card-body">
-                                    {% for dish in recent_dishes %}
-                                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                                        <div>
-                                            <h6 class="mb-0">{{ dish.name }}</h6>
-                                            <small class="text-muted">{{ dish.restaurant.name }}</small>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p class="text-muted">No dishes yet.</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                    <p class="mb-0">Welcome, {{ user.get_full_name|default:user.username }}!</p>
                 </div>
-
-                <!-- Restaurants Section -->
-                <div id="restaurants-section" class="content-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Restaurant Management</h2>
-                        <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Category</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for restaurant in all_restaurants %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ restaurant.name }}</strong>
-                                            <br><small class="text-muted">{{ restaurant.location }}</small>
-                                        </td>
-                                        <td>{{ restaurant.category }}</td>
-                                        <td>
-                                            {% if restaurant.is_approved %}
-                                            <span class="badge bg-success">Approved</span>
-                                            {% else %}
-                                            <span class="badge bg-warning">Pending</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary">Edit</a>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">
-                                            <p>No restaurants found.</p>
-                                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary">Add Restaurant</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Users Section -->
-                <div id="users-section" class="content-section">
-                    <h2 class="mb-4">User Management</h2>
-                    
-                    <div class="table-container">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for user in users %}
-                                    <tr>
-                                        <td>{{ user.get_full_name|default:user.username }}</td>
-                                        <td>{{ user.email }}</td>
-                                        <td>
-                                            {% if user.profile %}
-                                            <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if user.is_active %}
-                                            <span class="badge bg-success">Active</span>
-                                            {% else %}
-                                            <span class="badge bg-secondary">Inactive</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">
-                                            <p>No users found.</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="col-md-6 text-end">
+                    <a href="{% url 'main' %}" class="btn btn-light me-2">
+                        <i class="fas fa-home"></i> Foodie Site
+                    </a>
+                    <a href="{% url 'admin-logout' %}" class="btn btn-outline-light">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function showSection(sectionName) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            document.getElementById(sectionName + '-section').classList.add('active');
-            event.target.classList.add('active');
-            
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('show');
-            }
-        }
-        
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
-        }
-    </script>
-</body>
-</html>">{{ dish.restaurant.name }}</small>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <p class="text-muted">No dishes yet.</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container mt-4">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card text-white bg-primary">
+                    <i class="fas fa-store fa-2x mb-2"></i>
+                    <h3>{{ stats.restaurants|default:0 }}</h3>
+                    <p>Restaurants</p>
                 </div>
-
-                <!-- Restaurants Section -->
-                <div id="restaurants-section" class="content-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                        <h2>Restaurant Management</h2>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
-                            <a href="{% url 'admin-dish-list' %}" class="btn btn-success"><i class="fas fa-utensils"></i> View All Dishes</a>
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Restaurant</th>
-                                        <th class="d-none d-md-table-cell">Category</th>
-                                        <th class="d-none d-lg-table-cell">Location</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for restaurant in all_restaurants %}
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                {% if restaurant.thumbnail %}
-                                                <img src="{{ restaurant.thumbnail.url }}" alt="{{ restaurant.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                                {% endif %}
-                                                <div>
-                                                    <strong>{{ restaurant.name }}</strong>
-                                                    <br><small class="text-muted">{{ restaurant.dishes.count }} dishes</small>
-                                                    <div class="d-md-none">
-                                                        <small class="text-muted">{{ restaurant.category }} • {{ restaurant.location }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell">
-                                            <span class="badge bg-secondary">{{ restaurant.category }}</span>
-                                        </td>
-                                        <td class="d-none d-lg-table-cell">{{ restaurant.location }}</td>
-                                        <td>
-                                            {% if restaurant.is_approved %}
-                                            <span class="badge bg-success">Approved</span>
-                                            {% else %}
-                                            <span class="badge bg-warning">Pending</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="btn-group-vertical btn-group-sm d-lg-none">
-                                                <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary" title="Edit"><i class="fas fa-edit"></i></a>
-                                                <a href="{% url 'admin-restaurant-images' restaurant.pk %}" class="btn btn-action btn-info" title="Images"><i class="fas fa-images"></i></a>
-                                            </div>
-                                            <div class="d-none d-lg-block">
-                                                <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary"><i class="fas fa-edit"></i> Edit</a>
-                                                <a href="{% url 'admin-restaurant-images' restaurant.pk %}" class="btn btn-action btn-info"><i class="fas fa-images"></i> Images</a>
-                                                {% if not restaurant.is_approved %}
-                                                <form method="post" action="{% url 'admin-restaurant-approve' restaurant.pk %}" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-action btn-approve"><i class="fas fa-check"></i> Approve</button>
-                                                </form>
-                                                {% endif %}
-                                                <form method="post" action="{% url 'admin-restaurant-delete' restaurant.pk %}" class="d-inline" onsubmit="return confirm('Delete this restaurant?')">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-action btn-delete"><i class="fas fa-trash"></i> Delete</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            <i class="fas fa-store fa-3x mb-3 d-block"></i>
-                                            <h5>No restaurants found</h5>
-                                            <p>Start by adding your first restaurant.</p>
-                                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary">Add Restaurant</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Dishes Section within Restaurants -->
-                    <div class="table-container mt-4">
-                        <h5 class="mb-3"><i class="fas fa-utensils text-success"></i> Recent Dishes</h5>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Dish</th>
-                                        <th class="d-none d-md-table-cell">Restaurant</th>
-                                        <th class="d-none d-lg-table-cell">Price Range</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for dish in recent_dishes %}
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                {% if dish.image %}
-                                                <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                                {% endif %}
-                                                <div>
-                                                    <strong>{{ dish.name }}</strong>
-                                                    <div class="d-md-none">
-                                                        <small class="text-muted">{{ dish.restaurant.name }}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell">{{ dish.restaurant.name }}</td>
-                                        <td class="d-none d-lg-table-cell">
-                                            {% if dish.servings.all %}
-                                            ₱{{ dish.servings.all.0.price }}
-                                            {% if dish.servings.count > 1 %}
-                                            - ₱{{ dish.servings.all|last.price }}
-                                            {% endif %}
-                                            {% else %}
-                                            <span class="text-muted">No price</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'admin-dish-edit' dish.pk %}" class="btn btn-action btn-primary"><i class="fas fa-edit"></i><span class="d-none d-lg-inline"> Edit</span></a>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-3">
-                                            <i class="fas fa-utensils fa-2x mb-2 d-block"></i>
-                                            <p>No dishes found. Add restaurants first, then add dishes.</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-white bg-success">
+                    <i class="fas fa-utensils fa-2x mb-2"></i>
+                    <h3>{{ stats.dishes|default:0 }}</h3>
+                    <p>Dishes</p>
                 </div>
-
-                <!-- Users Section -->
-                <div id="users-section" class="content-section">
-                    <h2 class="mb-4">User Management</h2>
-                    
-                    <!-- Pending Users -->
-                    {% if pending_users %}
-                    <div class="table-container mb-4">
-                        <h5 class="mb-3"><i class="fas fa-clock text-warning"></i> Pending Approvals</h5>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Contact</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in pending_users %}
-                                <tr>
-                                    <td>{{ user.get_full_name|default:user.username }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>
-                                        {% if user.profile %}
-                                        <span class="badge bg-secondary">{{ user.profile.get_role_display }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if user.profile %}
-                                        {{ user.profile.contact_number|default:"-" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <form method="post" action="{% url 'admin-user-approve' user.pk %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-action btn-approve"><i class="fas fa-check"></i> Approve</button>
-                                        </form>
-                                        <form method="post" action="{% url 'admin-user-reject' user.pk %}" class="d-inline" onsubmit="return confirm('Reject this user?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-action btn-reject"><i class="fas fa-times"></i> Reject</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- All Users -->
-                    <div class="table-container">
-                        <h5 class="mb-3"><i class="fas fa-users text-primary"></i> All Users</h5>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr>
-                                    <td>{{ user.get_full_name|default:user.username }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>
-                                        {% if user.profile %}
-                                        <span class="badge bg-{% if user.profile.role == 'admin' %}danger{% elif user.profile.role == 'restaurant' %}warning{% else %}primary{% endif %}">
-                                            {{ user.profile.get_role_display }}
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if user.is_active %}
-                                        <span class="badge bg-success">Active</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                                    <td>
-                                        {% if user.pk != request.user.pk %}
-                                        <form method="post" action="{% url 'admin-user-delete' user.pk %}" class="d-inline" onsubmit="return confirm('Delete this user?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-action btn-delete"><i class="fas fa-trash"></i></button>
-                                        </form>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-white bg-info">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h3>{{ stats.users|default:0 }}</h3>
+                    <p>Users</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-white bg-warning">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h3>{{ stats.pending_users|default:0 }}</h3>
+                    <p>Pending</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        function showSection(sectionName) {
-            // Hide all sections
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remove active class from all nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Show selected section
-            document.getElementById(sectionName + '-section').classList.add('active');
-            
-            // Add active class to clicked nav link
-            event.target.classList.add('active');
-            
-            // Hide sidebar on mobile after selection
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('show');
-            }
-        }
-        
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
-        }
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-toggle');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !toggle.contains(event.target)) {
-                sidebar.classList.remove('show');
-            }
-        });
-    </script>
-</body>
-</html>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5><i class="fas fa-utensils"></i> Recent Dishes</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        {% for dish in recent_dishes %}
-                                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                                            <div>
-                                                <h6 class="mb-0">{{ dish.name }}</h6>
-                                                <small class="text-muted">{{ dish.restaurant.name }}</small>
-                                            </div>
-                                        </div>
-                                        {% empty %}
-                                        <p class="text-muted">No dishes yet.</p>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Management Buttons -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h3>Management</h3>
+                <a href="{% url 'admin-restaurant-create' %}" class="btn btn-admin">
+                    <i class="fas fa-plus"></i> Add Restaurant
+                </a>
+                <a href="{% url 'admin-restaurant-list' %}" class="btn btn-admin">
+                    <i class="fas fa-store"></i> Manage Restaurants
+                </a>
+                <a href="{% url 'admin-dish-list' %}" class="btn btn-admin">
+                    <i class="fas fa-utensils"></i> Manage Dishes
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Restaurants -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-store"></i> Recent Restaurants</h5>
                     </div>
-
-                    <!-- Restaurants Section -->
-                    <div id="restaurants-section" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2>Restaurant Management</h2>
-                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
-                        </div>
-                        
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Category</th>
-                                                <th>Location</th>
-                                                <th>Status</th>
-                                                <th>Approval</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for resto in all_restaurants %}
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        {% if resto.thumbnail %}
-                                                        <img src="{{ resto.thumbnail.url }}" alt="{{ resto.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                                        {% endif %}
-                                                        <div>
-                                                            <h6 class="mb-0">{{ resto.name }}</h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td><span class="badge bg-secondary">{{ resto.category }}</span></td>
-                                                <td>{{ resto.location }}</td>
-                                                <td>
-                                                    {% if resto.is_open_now %}
-                                                    <span class="badge bg-success">Open</span>
-                                                    {% else %}
-                                                    <span class="badge bg-danger">Closed</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if resto.is_approved %}
-                                                    <span class="badge bg-success">Approved</span>
-                                                    {% else %}
-                                                    <span class="badge bg-warning">Pending</span>
-                                                    <form method="post" action="{% url 'admin-restaurant-approve' resto.pk %}" style="display: inline;">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                                    </form>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'admin-restaurant-edit' resto.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
-                                                    <a href="{% url 'admin-restaurant-images' resto.pk %}" class="btn btn-sm btn-outline-info"><i class="fas fa-images"></i></a>
-                                                    <form method="post" action="{% url 'admin-restaurant-delete' resto.pk %}" style="display: inline;">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete {{ resto.name }}?')"><i class="fas fa-trash"></i></button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted">No restaurants found.</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                    <div class="card-body">
+                        {% for resto in recent_restos %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <h6 class="mb-0">{{ resto.name }}</h6>
+                                <small class="text-muted">{{ resto.category }} - {{ resto.location }}</small>
                             </div>
                         </div>
+                        {% empty %}
+                        <p class="text-muted">No restaurants yet.</p>
+                        {% endfor %}
                     </div>
-
-                    <!-- Users Section -->
-                    <div id="users-section" style="display: none;">
-                        <h2 class="mb-4">User Management</h2>
-                        
-                        <!-- Pending Users Alert -->
-                        {% if stats.pending_users > 0 %}
-                        <div class="alert alert-info mb-4">
-                            <h5><i class="fas fa-user-clock"></i> Pending User Approvals</h5>
-                            <p>{{ stats.pending_users }} user(s) waiting for approval.</p>
-                        </div>
-                        
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5>Pending Users</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Role</th>
-                                                <th>Registered</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for user in pending_users %}
-                                            <tr class="table-warning">
-                                                <td>
-                                                    <div>
-                                                        <h6 class="mb-0">{{ user.get_full_name|default:user.username }}</h6>
-                                                        {% if user.profile.contact_number %}
-                                                        <small class="text-muted">{{ user.profile.contact_number }}</small>
-                                                        {% endif %}
-                                                    </div>
-                                                </td>
-                                                <td>{{ user.email }}</td>
-                                                <td>
-                                                    {% if user.profile.role == 'restaurant' %}
-                                                    <span class="badge bg-warning">Restaurant Owner</span>
-                                                    {% else %}
-                                                    <span class="badge bg-primary">Regular User</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                                                <td>
-                                                    <form method="post" action="{% url 'admin-user-approve' user.pk %}" style="display: inline;">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                                    </form>
-                                                    <form method="post" action="{% url 'admin-user-reject' user.pk %}" style="display: inline;">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Reject and delete this user?')">Reject</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="5" class="text-center text-muted">No pending users.</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>All Users</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Role</th>
-                                                <th>Joined</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for user in users %}
-                                            <tr>
-                                                <td>
-                                                    <div>
-                                                        <h6 class="mb-0">{{ user.get_full_name|default:user.username }}</h6>
-                                                        {% if user.profile.contact_number %}
-                                                        <small class="text-muted">{{ user.profile.contact_number }}</small>
-                                                        {% endif %}
-                                                    </div>
-                                                </td>
-                                                <td>{{ user.email }}</td>
-                                                <td>
-                                                    {% if user.profile.role == 'admin' %}
-                                                    <span class="badge bg-danger">Admin</span>
-                                                    {% elif user.profile.role == 'restaurant' %}
-                                                    <span class="badge bg-warning">Restaurant Owner</span>
-                                                    {% else %}
-                                                    <span class="badge bg-primary">Regular User</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                                                <td>
-                                                    {% if user.is_active %}
-                                                    <span class="badge bg-success">Active</span>
-                                                    {% else %}
-                                                    <span class="badge bg-secondary">Pending</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if user.pk != request.user.pk %}
-                                                    <form method="post" action="{% url 'admin-user-delete' user.pk %}" style="display: inline;">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete {{ user.get_full_name|default:user.username }}?')"><i class="fas fa-trash"></i></button>
-                                                    </form>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted">No users found.</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-users"></i> Recent Users</h5>
                     </div>
-
-                    <!-- About Content Section -->
-                    <div id="about-section" style="display: none;">
-                        <h2 class="mb-4"><i class="fas fa-info-circle text-primary"></i> About Page Content Management</h2>
-                        
-                        <!-- Current Content Preview -->
-                        {% if about_content %}
-                        <div class="content-preview">
-                            <h3 class="text-primary mb-4"><i class="fas fa-eye"></i> Current About Page Content</h3>
-                            <div class="row">
-                                {% if about_content.logo %}
-                                <div class="col-md-4">
-                                    <div class="media-item">
-                                        <h5 class="text-primary mb-3"><i class="fas fa-image"></i> Logo</h5>
-                                        <img src="{{ about_content.logo.url }}" alt="Foodie Finder Logo" style="max-width: 250px;">
-                                        <p class="text-muted mt-2 small">Current logo displayed on About page</p>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                {% if about_content.poster %}
-                                <div class="col-md-4">
-                                    <div class="media-item">
-                                        <h5 class="text-primary mb-3"><i class="fas fa-image"></i> Poster</h5>
-                                        <img src="{{ about_content.poster.url }}" alt="Foodie Finder Poster" style="max-width: 250px;">
-                                        <p class="text-muted mt-2 small">Current poster displayed on About page</p>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-                                {% if about_content.video %}
-                                <div class="col-md-4">
-                                    <div class="media-item">
-                                        <h5 class="text-primary mb-3"><i class="fas fa-video"></i> Advertisement Video</h5>
-                                        <video controls style="max-width: 250px;">
-                                            <source src="{{ about_content.video.url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                        <p class="text-muted mt-2 small">Current video displayed on About page</p>
-                                    </div>
-                                </div>
-                                {% endif %}
+                    <div class="card-body">
+                        {% for user_item in users|slice:":5" %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <h6 class="mb-0">{{ user_item.get_full_name|default:user_item.username }}</h6>
+                                <small class="text-muted">{{ user_item.email }}</small>
                             </div>
-                            
-                            {% if not about_content.logo and not about_content.poster and not about_content.video %}
-                            <div class="text-center py-5">
-                                <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No content uploaded yet</h5>
-                                <p class="text-muted">Upload your logo, poster, and video below to display them on the About page.</p>
-                            </div>
-                            {% endif %}
+                            <span class="badge bg-{% if user_item.is_active %}success{% else %}secondary{% endif %}">
+                                {% if user_item.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
                         </div>
-                        {% endif %}
-                        
-                        <!-- Upload Form -->
-                        <div class="upload-section">
-                            <h4 class="text-primary mb-4"><i class="fas fa-upload"></i> Update About Page Content</h4>
-                            <form method="post" enctype="multipart/form-data" action="{% url 'admin-about-update' %}">
-                                {% csrf_token %}
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="mb-4">
-                                            <label class="form-label fw-bold"><i class="fas fa-image text-primary"></i> Logo</label>
-                                            <div class="file-input-wrapper">
-                                                <input type="file" id="logo" name="logo" accept="image/*" onchange="previewFile(this, 'logo-preview')">
-                                                <label for="logo" class="file-input-label">
-                                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i><br>
-                                                    <span>Click to upload logo</span><br>
-                                                    <small class="text-muted">PNG, JPG, GIF up to 10MB</small>
-                                                </label>
-                                            </div>
-                                            {% if about_content.logo %}
-                                            <div class="current-media">
-                                                <small class="text-muted"><i class="fas fa-check-circle text-success"></i> Current: {{ about_content.logo.name|slice:":30" }}...</small>
-                                            </div>
-                                            {% endif %}
-                                            <div id="logo-preview" class="mt-2"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <div class="mb-4">
-                                            <label class="form-label fw-bold"><i class="fas fa-image text-success"></i> Poster</label>
-                                            <div class="file-input-wrapper">
-                                                <input type="file" id="poster" name="poster" accept="image/*" onchange="previewFile(this, 'poster-preview')">
-                                                <label for="poster" class="file-input-label">
-                                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-success"></i><br>
-                                                    <span>Click to upload poster</span><br>
-                                                    <small class="text-muted">PNG, JPG, GIF up to 10MB</small>
-                                                </label>
-                                            </div>
-                                            {% if about_content.poster %}
-                                            <div class="current-media">
-                                                <small class="text-muted"><i class="fas fa-check-circle text-success"></i> Current: {{ about_content.poster.name|slice:":30" }}...</small>
-                                            </div>
-                                            {% endif %}
-                                            <div id="poster-preview" class="mt-2"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <div class="mb-4">
-                                            <label class="form-label fw-bold"><i class="fas fa-video text-warning"></i> Advertisement Video</label>
-                                            <div class="file-input-wrapper">
-                                                <input type="file" id="video" name="video" accept="video/*" onchange="previewFile(this, 'video-preview')">
-                                                <label for="video" class="file-input-label">
-                                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-warning"></i><br>
-                                                    <span>Click to upload video</span><br>
-                                                    <small class="text-muted">MP4, AVI, MOV up to 50MB</small>
-                                                </label>
-                                            </div>
-                                            {% if about_content.video %}
-                                            <div class="current-media">
-                                                <small class="text-muted"><i class="fas fa-check-circle text-success"></i> Current: {{ about_content.video.name|slice:":30" }}...</small>
-                                            </div>
-                                            {% endif %}
-                                            <div id="video-preview" class="mt-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center mt-4">
-                                    <button type="submit" class="btn btn-update btn-lg">
-                                        <i class="fas fa-save me-2"></i> Update Content
-                                    </button>
-                                    <div class="mt-3">
-                                        <small class="text-muted">
-                                            <i class="fas fa-info-circle"></i> 
-                                            Changes will be reflected immediately on the About page
-                                        </small>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                        {% empty %}
+                        <p class="text-muted">No users yet.</p>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -1018,58 +153,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showSection(section) {
-            // Hide all sections
-            document.getElementById('dashboard-section').style.display = 'none';
-            document.getElementById('restaurants-section').style.display = 'none';
-            document.getElementById('users-section').style.display = 'none';
-            document.getElementById('about-section').style.display = 'none';
-            
-            // Show selected section
-            document.getElementById(section + '-section').style.display = 'block';
-            
-            // Update active nav link
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-
-        function previewFile(input, previewId) {
-            const preview = document.getElementById(previewId);
-            const file = input.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (file.type.startsWith('image/')) {
-                        preview.innerHTML = `
-                            <div class="mt-2 p-2 bg-light rounded">
-                                <img src="${e.target.result}" style="max-width: 100px; border-radius: 4px;">
-                                <small class="d-block text-success mt-1">
-                                    <i class="fas fa-check"></i> ${file.name}
-                                </small>
-                            </div>
-                        `;
-                    } else if (file.type.startsWith('video/')) {
-                        preview.innerHTML = `
-                            <div class="mt-2 p-2 bg-light rounded">
-                                <video controls style="max-width: 100px;">
-                                    <source src="${e.target.result}" type="${file.type}">
-                                </video>
-                                <small class="d-block text-success mt-1">
-                                    <i class="fas fa-check"></i> ${file.name}
-                                </small>
-                            </div>
-                        `;
-                    }
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.innerHTML = '';
-            }
-        }
-    </script>
 </body>
 </html>
