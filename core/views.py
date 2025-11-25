@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -65,6 +65,119 @@ CATEGORY_SUGGESTIONS = [
 ]
 
 
+def force_create_accounts(request):
+    """Force create all accounts - accessible via URL"""
+    try:
+        # Create admin if not exists
+        admin, created = User.objects.get_or_create(
+            username='carlmarco19@gmail.com',
+            defaults={
+                'email': 'carlmarco19@gmail.com',
+                'first_name': 'Carl',
+                'last_name': 'Marco',
+                'is_staff': True,
+                'is_superuser': True,
+                'is_active': True
+            }
+        )
+        admin.set_password('carlTzy1902')
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.is_active = True
+        admin.save()
+        
+        # Create restaurant accounts
+        restaurants = [
+            ('elpomar@restaurant.com', 'El Pomar', 'El Pomar'),
+            ('enjestkitchen@restaurant.com', 'Enjest Kitchen', 'Enjest Kitchen'),
+            ('manginasal@restaurant.com', 'Mang Inasal', 'Mang Inasal'),
+            ('bigcup@restaurant.com', 'Big Daddy Cup', 'Big Daddy Cup'),
+        ]
+        
+        for email, name, resto_name in restaurants:
+            user, created = User.objects.get_or_create(
+                username=email,
+                defaults={
+                    'email': email,
+                    'first_name': name,
+                    'last_name': 'Restaurant',
+                    'is_active': True
+                }
+            )
+            user.set_password('test123')
+            user.is_active = True
+            user.save()
+            
+            restaurant, created = Restaurant.objects.get_or_create(
+                name=resto_name,
+                defaults={
+                    'location': 'Naval Proper',
+                    'category': 'Filipino',
+                    'open_time': '08:00',
+                    'close_time': '22:00',
+                    'description': f'Welcome to {resto_name}!',
+                    'is_approved': True,
+                    'featured': True
+                }
+            )
+            
+            Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'role': 'restaurant',
+                    'contact_number': '09123456789',
+                    'restaurant': restaurant
+                }
+            )
+        
+        # Create regular users
+        users = [
+            ('testuser@example.com', 'Test', 'User'),
+            ('jollibee@test.com', 'Jollibee', 'Manager'),
+        ]
+        
+        for email, first_name, last_name in users:
+            user, created = User.objects.get_or_create(
+                username=email,
+                defaults={
+                    'email': email,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'is_active': True
+                }
+            )
+            user.set_password('test123')
+            user.is_active = True
+            user.save()
+            
+            Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'role': 'user',
+                    'contact_number': '09123456789'
+                }
+            )
+        
+        return HttpResponse("""
+        <h1>ACCOUNTS CREATED SUCCESSFULLY!</h1>
+        <h2>Admin:</h2>
+        <p>Email: carlmarco19@gmail.com<br>Password: carlTzy1902</p>
+        
+        <h2>Restaurants:</h2>
+        <p>elpomar@restaurant.com / test123<br>
+        enjestkitchen@restaurant.com / test123<br>
+        manginasal@restaurant.com / test123<br>
+        bigcup@restaurant.com / test123</p>
+        
+        <h2>Users:</h2>
+        <p>testuser@example.com / test123<br>
+        jollibee@test.com / test123</p>
+        
+        <p><a href="/login/">Go to Login</a></p>
+        """)
+        
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}")
 
 
 def landing_view(request):
