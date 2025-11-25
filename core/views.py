@@ -65,6 +65,48 @@ CATEGORY_SUGGESTIONS = [
 ]
 
 
+def test_registration(request):
+    """Test registration functionality"""
+    try:
+        # Test creating a user
+        email = 'test_reg@example.com'
+        
+        # Delete if exists
+        User.objects.filter(username=email).delete()
+        
+        # Create user
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password='test123',
+            first_name='Test',
+            last_name='Registration'
+        )
+        
+        # Create profile
+        profile = Profile.objects.create(
+            user=user,
+            contact_number='09123456789',
+            role='user'
+        )
+        
+        return HttpResponse(f"""
+        <h1>REGISTRATION TEST SUCCESSFUL!</h1>
+        <p>User created: {user.email}</p>
+        <p>Profile created: {profile.role}</p>
+        <p>Registration should work now!</p>
+        <p><a href="/register/">Try Registration</a></p>
+        """)
+        
+    except Exception as e:
+        import traceback
+        return HttpResponse(f"""
+        <h1>REGISTRATION TEST FAILED!</h1>
+        <p>Error: {str(e)}</p>
+        <pre>{traceback.format_exc()}</pre>
+        """)
+
+
 def force_create_accounts(request):
     """Force create all accounts - accessible via URL"""
     try:
@@ -264,66 +306,72 @@ def register_view(request):
     admin_exists = User.objects.filter(is_superuser=True).exists()
     
     if request.method == 'POST':
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        contact_number = request.POST.get('contact_number', '').strip()
-        email = request.POST.get('email', '').strip().lower()
-        password = request.POST.get('password', '')
-        confirm = request.POST.get('confirm_password', '')
-        role = request.POST.get('role', 'user')
-
-        if password != confirm or not email:
-            messages.error(request, "Please check your inputs.")
-            return render(request, 'register.html', {'admin_exists': admin_exists})
-
-        if User.objects.filter(username=email).exists():
-            messages.error(request, "Email already registered.")
-            return render(request, 'register.html', {'admin_exists': admin_exists})
-
-        # Prevent admin registration if admin already exists
-        if role == 'admin' and admin_exists:
-            messages.error(request, "Admin account already exists.")
-            return render(request, 'register.html', {'admin_exists': admin_exists})
-        
-        # Create user
-        user = User.objects.create_user(
-            username=email, 
-            email=email, 
-            password=password, 
-            first_name=first_name, 
-            last_name=last_name
-        )
-        
-        # Create profile safely
         try:
-            profile = Profile.objects.create(
-                user=user,
-                contact_number=contact_number or 'Not provided',
-                role=role
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            contact_number = request.POST.get('contact_number', '').strip()
+            email = request.POST.get('email', '').strip().lower()
+            password = request.POST.get('password', '')
+            confirm = request.POST.get('confirm_password', '')
+            role = request.POST.get('role', 'user')
+
+            # Validation
+            if not email or not password or not first_name:
+                messages.error(request, "Please fill in all required fields.")
+                return render(request, 'register.html', {'admin_exists': admin_exists})
+                
+            if password != confirm:
+                messages.error(request, "Passwords do not match.")
+                return render(request, 'register.html', {'admin_exists': admin_exists})
+
+            if User.objects.filter(username=email).exists():
+                messages.error(request, "Email already registered.")
+                return render(request, 'register.html', {'admin_exists': admin_exists})
+
+            # Prevent admin registration if admin already exists
+            if role == 'admin' and admin_exists:
+                messages.error(request, "Admin account already exists.")
+                return render(request, 'register.html', {'admin_exists': admin_exists})
+            
+            # Create user
+            user = User.objects.create_user(
+                username=email, 
+                email=email, 
+                password=password, 
+                first_name=first_name, 
+                last_name=last_name
             )
-        except Exception:
+            
+            # Create profile safely
             profile, created = Profile.objects.get_or_create(
                 user=user,
                 defaults={
-                    'contact_number': contact_number or 'Not provided',
+                    'contact_number': contact_number or '09123456789',
                     'role': role
                 }
             )
-        
-        # Set admin privileges if admin role
-        if role == 'admin':
-            user.is_staff = True
-            user.is_superuser = True
-            user.is_active = True
-            user.save()
-            messages.success(request, "Admin account created successfully! You can now log in.")
-        else:
-            # New non-admin users need approval (existing users stay active)
-            user.is_active = False
-            user.save()
-            messages.success(request, "Registration successful! Your account is pending admin approval. You will be notified once approved.")
-        
-        return redirect('login')
+            
+            # Set user status based on role
+            if role == 'admin':
+                user.is_staff = True
+                user.is_superuser = True
+                user.is_active = True
+                user.save()
+                messages.success(request, "Admin account created successfully! You can now log in.")
+            else:
+                # New non-admin users need approval
+                user.is_active = False
+                user.save()
+                messages.success(request, "Registration successful! Your account is pending admin approval.")
+            
+            return redirect('login')
+            
+        except Exception as e:
+            # Debug: Log the actual error
+            import traceback
+            error_msg = str(e)
+            messages.error(request, f"Registration failed: {error_msg}")
+            return render(request, 'register.html', {'admin_exists': admin_exists})
 
     return render(request, 'register.html', {'admin_exists': admin_exists})
 
