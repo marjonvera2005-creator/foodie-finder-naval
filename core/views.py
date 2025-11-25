@@ -128,7 +128,7 @@ def force_create_accounts(request):
         admin.is_active = True
         admin.save()
         
-        # Create restaurant accounts
+        # Create restaurant accounts with proper restaurant links
         restaurants = [
             ('elpomar@restaurant.com', 'El Pomar', 'El Pomar'),
             ('enjestkitchen@restaurant.com', 'Enjest Kitchen', 'Enjest Kitchen'),
@@ -163,7 +163,8 @@ def force_create_accounts(request):
                 }
             )
             
-            Profile.objects.get_or_create(
+            # Ensure profile is properly linked to restaurant
+            profile, created = Profile.objects.get_or_create(
                 user=user,
                 defaults={
                     'role': 'restaurant',
@@ -171,6 +172,12 @@ def force_create_accounts(request):
                     'restaurant': restaurant
                 }
             )
+            
+            # Update existing profile if needed
+            if not created:
+                profile.role = 'restaurant'
+                profile.restaurant = restaurant
+                profile.save()
         
         # Create regular users
         users = [
