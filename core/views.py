@@ -106,12 +106,21 @@ def register_view(request):
             last_name=last_name
         )
         
-        # Create profile
-        profile = Profile.objects.create(
-            user=user,
-            contact_number=contact_number,
-            role=role
-        )
+        # Create profile safely
+        try:
+            profile = Profile.objects.create(
+                user=user,
+                contact_number=contact_number or 'Not provided',
+                role=role
+            )
+        except Exception:
+            profile, created = Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'contact_number': contact_number or 'Not provided',
+                    'role': role
+                }
+            )
         
         # Set admin privileges if admin role
         if role == 'admin':
