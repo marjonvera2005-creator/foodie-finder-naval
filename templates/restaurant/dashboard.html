@@ -361,24 +361,34 @@
     <div class="container">
         <div class="restaurant-controls">
             <div class="row text-center">
-                <div class="col-md-3 mb-2">
+                <div class="col-md-2 mb-2">
                     <a href="{% url 'restaurant-edit' %}" class="control-btn">
-                        <i class="fas fa-edit"></i> Edit Restaurant
+                        <i class="fas fa-edit"></i> Edit Info
                     </a>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-2 mb-2">
                     <a href="{% url 'restaurant-dishes' %}" class="control-btn">
                         <i class="fas fa-utensils"></i> Manage Menu
                     </a>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-2 mb-2">
                     <a href="{% url 'restaurant-images' %}" class="control-btn">
-                        <i class="fas fa-images"></i> Manage Images
+                        <i class="fas fa-images"></i> Images
                     </a>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-2 mb-2">
                     <a href="{% url 'restaurant-menu-categories' %}" class="control-btn">
                         <i class="fas fa-list"></i> View Menu
+                    </a>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <a href="{% url 'restaurant-dish-create' %}" class="control-btn">
+                        <i class="fas fa-plus"></i> Add Dish
+                    </a>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <a href="{% url 'logout' %}" class="control-btn" style="background: #dc3545;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
             </div>
