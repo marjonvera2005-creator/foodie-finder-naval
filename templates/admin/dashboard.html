@@ -223,6 +223,141 @@
 
                 <!-- Restaurants Section -->
                 <div id="restaurants-section" class="content-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Restaurant Management</h2>
+                        <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for restaurant in all_restaurants %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ restaurant.name }}</strong>
+                                            <br><small class="text-muted">{{ restaurant.location }}</small>
+                                        </td>
+                                        <td>{{ restaurant.category }}</td>
+                                        <td>
+                                            {% if restaurant.is_approved %}
+                                            <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary">Edit</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <p>No restaurants found.</p>
+                                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary">Add Restaurant</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users-section" class="content-section">
+                    <h2 class="mb-4">User Management</h2>
+                    
+                    <div class="table-container">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.get_full_name|default:user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            {% if user.profile %}
+                                            <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <p>No users found.</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.getElementById(sectionName + '-section').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+    </script>
+</body>
+</html>">{{ dish.restaurant.name }}</small>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted">No dishes yet.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Restaurants Section -->
+                <div id="restaurants-section" class="content-section">
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                         <h2>Restaurant Management</h2>
                         <div class="d-flex gap-2 flex-wrap">
