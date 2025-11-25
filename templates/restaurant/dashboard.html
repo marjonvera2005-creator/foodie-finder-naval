@@ -60,6 +60,29 @@
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
 
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+        }
+
         .control-btn {
             background: linear-gradient(135deg, #F54749, #FFB703);
             border: none;
@@ -352,14 +375,51 @@
     <!-- Restaurant Header -->
     <div class="restaurant-header">
         <div class="container text-center">
-            <h1><i class="fas fa-store"></i> {{ restaurant.name }} Dashboard</h1>
-            <p class="mb-0">Manage your restaurant information and menu</p>
+            <h1><i class="fas fa-store"></i> Welcome to {{ restaurant.name }}</h1>
+            <p class="mb-0">Your personalized restaurant dashboard - Manage your restaurant and explore Foodie Finder</p>
+            <div class="mt-3">
+                <span class="badge bg-light text-dark me-2"><i class="fas fa-utensils"></i> {{ restaurant.dishes.count }} Dishes</span>
+                <span class="badge bg-light text-dark me-2"><i class="fas fa-map-marker-alt"></i> {{ restaurant.location }}</span>
+                <span class="badge bg-light text-dark"><i class="fas fa-tag"></i> {{ restaurant.category }}</span>
+            </div>
         </div>
     </div>
 
     <!-- Restaurant Controls -->
     <div class="container">
+        <!-- Restaurant Stats -->
+        <div class="restaurant-controls mb-4">
+            <div class="row">
+                <div class="col-md-3 text-center mb-3">
+                    <div class="stat-card">
+                        <h3 class="text-primary">{{ restaurant.dishes.count }}</h3>
+                        <p class="mb-0">Menu Items</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="stat-card">
+                        <h3 class="text-success">{{ restaurant.images.count }}</h3>
+                        <p class="mb-0">Photos</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="stat-card">
+                        <h3 class="text-warning">{% if restaurant.is_approved %}Active{% else %}Pending{% endif %}</h3>
+                        <p class="mb-0">Status</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="stat-card">
+                        <h3 class="text-info">{% if restaurant.featured %}Yes{% else %}No{% endif %}</h3>
+                        <p class="mb-0">Featured</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Management Controls -->
         <div class="restaurant-controls">
+            <h5 class="mb-3"><i class="fas fa-cogs"></i> Restaurant Management</h5>
             <div class="row text-center">
                 <div class="col-md-2 mb-2">
                     <a href="{% url 'restaurant-edit' %}" class="control-btn">
@@ -416,8 +476,57 @@
                 {% endfor %}
             </div>
 
+            <!-- Your Restaurant -->
+            <div class="mb-5">
+                <h3 class="mb-4"><i class="fas fa-store text-primary"></i> Your Restaurant</h3>
+                <div class="restaurant-card" style="border: 3px solid #F54749;">
+                    {% if restaurant.thumbnail %}
+                    <img src="{{ restaurant.thumbnail.url }}" alt="{{ restaurant.name }}" class="restaurant-image">
+                    {% else %}
+                    <div class="restaurant-image" style="background: linear-gradient(135deg, #F54749, #FFB703); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="restaurant-badge" style="background: #28a745;">Your Restaurant</div>
+                    
+                    <div class="restaurant-info">
+                        <h4 class="restaurant-name">{{ restaurant.name }}</h4>
+                        <div class="restaurant-category">{{ restaurant.category }}</div>
+                        <div class="restaurant-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ restaurant.location }}
+                        </div>
+                        
+                        <div class="menu-preview">
+                            {% for dish in restaurant.dishes.all|slice:":3" %}
+                            <span class="menu-item">{{ dish.name }}</span>
+                            {% endfor %}
+                            {% if restaurant.dishes.count > 3 %}
+                            <span class="menu-item">+{{ restaurant.dishes.count|add:"-3" }} more</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="restaurant-footer">
+                            <div class="price-range">
+                                {% with restaurant.dishes.first as first_dish %}
+                                {% if first_dish %}
+                                {{ first_dish.price_tier }}
+                                {% else %}
+                                ₱₱
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            <a href="{% url 'restaurant-edit' %}" class="view-btn">
+                                <i class="fas fa-edit"></i> Manage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Featured Restaurants -->
-            <h3 class="mb-4"><i class="fas fa-star text-warning"></i> Featured Restaurants</h3>
+            <h3 class="mb-4"><i class="fas fa-star text-warning"></i> Other Featured Restaurants</h3>
             <div class="restaurant-grid">
                 {% for resto in featured %}
                 <div class="restaurant-card" data-category="{{ resto.category }}">

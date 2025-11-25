@@ -901,7 +901,8 @@ def restaurant_dashboard(request):
         profile.restaurant = restaurant
         profile.save()
     
-    featured_restos = Restaurant.objects.filter(featured=True).prefetch_related('dishes')[:6]
+    # Exclude owner's restaurant from featured list
+    featured_restos = Restaurant.objects.filter(featured=True).exclude(id=restaurant.id).prefetch_related('dishes')[:6]
     categories = list(Restaurant.objects.values_list('category', flat=True).distinct())
     
     return render(request, 'restaurant/dashboard.html', {
