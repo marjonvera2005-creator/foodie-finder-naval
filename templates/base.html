@@ -26,10 +26,12 @@
         </div>
         <div class="top-actions">
             <a class="btn ghost" href="{% url 'about' %}">About</a>
-            <button class="back-btn" onclick="window.history.back()" title="Go Back">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back</span>
-            </button>
+            {% block top_action %}
+            <a class="back-btn" href="{% url 'logout' %}" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+            {% endblock %}
         </div>
     </header>
 
