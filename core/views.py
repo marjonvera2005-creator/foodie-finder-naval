@@ -226,6 +226,116 @@ def force_create_accounts(request):
         """)
         
     except Exception as e:
+        import traceback
+        return HttpResponse(f"""
+        <h1>ERROR CREATING ACCOUNTS</h1>
+        <p>Error: {str(e)}</p>
+        <pre>{traceback.format_exc()}</pre>
+        <p><a href="/create-restaurants/">Try Create Restaurants Only</a></p>
+        """)
+
+
+def create_restaurants_only(request):
+    """Create only restaurant accounts - simpler version"""
+    try:
+        restaurants_data = [
+            ('elpomar@restaurant.com', 'El Pomar', 'El Pomar'),
+            ('enjestkitchen@restaurant.com', 'Enjest Kitchen', 'Enjest Kitchen'),
+            ('manginasal@restaurant.com', 'Mang Inasal', 'Mang Inasal'),
+            ('bigcup@restaurant.com', 'Big Daddy Cup', 'Big Daddy Cup'),
+        ]
+        
+        results = []
+        
+        for email, name, resto_name in restaurants_data:
+            # Delete existing user if exists
+            User.objects.filter(username=email).delete()
+            
+            # Create user
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password='test123',
+                first_name=name,
+                last_name='Restaurant',
+                is_active=True
+            )
+            
+            # Create restaurant
+            restaurant, created = Restaurant.objects.get_or_create(
+                name=resto_name,
+                defaults={
+                    'location': 'Naval Proper',
+                    'category': 'Filipino',
+                    'open_time': '08:00',
+                    'close_time': '22:00',
+                    'description': f'Welcome to {resto_name}!',
+                    'is_approved': True,
+                    'featured': True
+                }
+            )
+            
+            # Create profile
+            profile = Profile.objects.create(
+                user=user,
+                role='restaurant',
+                contact_number='09123456789',
+                restaurant=restaurant
+            )
+            
+            results.append(f"✓ {email} / test123 - Restaurant: {resto_name}")
+        
+        return HttpResponse(f"""
+        <h1>RESTAURANT ACCOUNTS CREATED!</h1>
+        <h2>Login Credentials:</h2>
+        {'<br>'.join(results)}
+        
+        <p><a href="/login/">Go to Login</a></p>
+        <p><a href="/">Go to Home</a></p>
+        """)
+        
+    except Exception as e:
+        import traceback
+        return HttpResponse(f"""
+        <h1>ERROR CREATING RESTAURANT ACCOUNTS</h1>
+        <p>Error: {str(e)}</p>
+        <pre>{traceback.format_exc()}</pre>
+        """)
+
+
+def check_accounts(request):
+    """Check which accounts exist"""
+    try:
+        admin_count = User.objects.filter(is_superuser=True).count()
+        restaurant_emails = ['elpomar@restaurant.com', 'enjestkitchen@restaurant.com', 'manginasal@restaurant.com', 'bigcup@restaurant.com']
+        
+        results = []
+        results.append(f"Admin accounts: {admin_count}")
+        
+        for email in restaurant_emails:
+            exists = User.objects.filter(username=email).exists()
+            has_profile = False
+            has_restaurant = False
+            
+            if exists:
+                user = User.objects.get(username=email)
+                has_profile = hasattr(user, 'profile')
+                if has_profile:
+                    has_restaurant = user.profile.restaurant is not None
+            
+            status = "✓" if exists and has_profile and has_restaurant else "✗"
+            results.append(f"{status} {email} - User: {exists}, Profile: {has_profile}, Restaurant: {has_restaurant}")
+        
+        return HttpResponse(f"""
+        <h1>ACCOUNT STATUS CHECK</h1>
+        <pre>{'<br>'.join(results)}</pre>
+        
+        <p><a href="/create-restaurants/">Create Restaurant Accounts</a></p>
+        <p><a href="/force-accounts/">Create All Accounts</a></p>
+        <p><a href="/login/">Go to Login</a></p>
+        """)
+        
+    except Exception as e:
         return HttpResponse(f"Error: {str(e)}")
 
 
