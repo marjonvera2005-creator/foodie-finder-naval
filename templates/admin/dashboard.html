@@ -27,7 +27,7 @@
         }
         .main-content {
             margin-left: 250px;
-            background: #f8f9fa;
+            background: url('/static/img/background.jpg') center/cover no-repeat fixed, #f8f9fa;
             min-height: 100vh;
         }
         .stats-card {
@@ -48,7 +48,8 @@
             display: block;
         }
         .table-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -63,12 +64,58 @@
         .btn-approve { background: #28a745; color: white; }
         .btn-reject { background: #dc3545; color: white; }
         .btn-delete { background: #6c757d; color: white; }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                transition: left 0.3s ease;
+                z-index: 1050;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .mobile-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1060;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            .table-responsive {
+                font-size: 12px;
+            }
+            .btn-action {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid">
+        <!-- Mobile Toggle Button -->
+        <button class="mobile-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="p-3 text-center">
                 {% load static %}
                 <img src="{% static 'img/LOGO.png' %}" alt="Foodie Finder" class="sidebar-logo">
@@ -176,67 +223,145 @@
 
                 <!-- Restaurants Section -->
                 <div id="restaurants-section" class="content-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                         <h2>Restaurant Management</h2>
-                        <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Restaurant</a>
+                            <a href="{% url 'admin-dish-list' %}" class="btn btn-success"><i class="fas fa-utensils"></i> View All Dishes</a>
+                        </div>
                     </div>
                     
                     <div class="table-container">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Category</th>
-                                    <th>Location</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for restaurant in all_restaurants %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            {% if restaurant.thumbnail %}
-                                            <img src="{{ restaurant.thumbnail.url }}" alt="{{ restaurant.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                            {% endif %}
-                                            <div>
-                                                <strong>{{ restaurant.name }}</strong>
-                                                <br><small class="text-muted">{{ restaurant.dishes.count }} dishes</small>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Restaurant</th>
+                                        <th class="d-none d-md-table-cell">Category</th>
+                                        <th class="d-none d-lg-table-cell">Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for restaurant in all_restaurants %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if restaurant.thumbnail %}
+                                                <img src="{{ restaurant.thumbnail.url }}" alt="{{ restaurant.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ restaurant.name }}</strong>
+                                                    <br><small class="text-muted">{{ restaurant.dishes.count }} dishes</small>
+                                                    <div class="d-md-none">
+                                                        <small class="text-muted">{{ restaurant.category }} • {{ restaurant.location }}</small>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ restaurant.category }}</td>
-                                    <td>{{ restaurant.location }}</td>
-                                    <td>
-                                        {% if restaurant.is_approved %}
-                                        <span class="badge bg-success">Approved</span>
-                                        {% else %}
-                                        <span class="badge bg-warning">Pending</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary"><i class="fas fa-edit"></i></a>
-                                        <a href="{% url 'admin-restaurant-images' restaurant.pk %}" class="btn btn-action btn-info"><i class="fas fa-images"></i></a>
-                                        {% if not restaurant.is_approved %}
-                                        <form method="post" action="{% url 'admin-restaurant-approve' restaurant.pk %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-action btn-approve"><i class="fas fa-check"></i></button>
-                                        </form>
-                                        {% endif %}
-                                        <form method="post" action="{% url 'admin-restaurant-delete' restaurant.pk %}" class="d-inline" onsubmit="return confirm('Delete this restaurant?')">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-action btn-delete"><i class="fas fa-trash"></i></button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">No restaurants found.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        </td>
+                                        <td class="d-none d-md-table-cell">
+                                            <span class="badge bg-secondary">{{ restaurant.category }}</span>
+                                        </td>
+                                        <td class="d-none d-lg-table-cell">{{ restaurant.location }}</td>
+                                        <td>
+                                            {% if restaurant.is_approved %}
+                                            <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm d-lg-none">
+                                                <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary" title="Edit"><i class="fas fa-edit"></i></a>
+                                                <a href="{% url 'admin-restaurant-images' restaurant.pk %}" class="btn btn-action btn-info" title="Images"><i class="fas fa-images"></i></a>
+                                            </div>
+                                            <div class="d-none d-lg-block">
+                                                <a href="{% url 'admin-restaurant-edit' restaurant.pk %}" class="btn btn-action btn-primary"><i class="fas fa-edit"></i> Edit</a>
+                                                <a href="{% url 'admin-restaurant-images' restaurant.pk %}" class="btn btn-action btn-info"><i class="fas fa-images"></i> Images</a>
+                                                {% if not restaurant.is_approved %}
+                                                <form method="post" action="{% url 'admin-restaurant-approve' restaurant.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-action btn-approve"><i class="fas fa-check"></i> Approve</button>
+                                                </form>
+                                                {% endif %}
+                                                <form method="post" action="{% url 'admin-restaurant-delete' restaurant.pk %}" class="d-inline" onsubmit="return confirm('Delete this restaurant?')">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-action btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-store fa-3x mb-3 d-block"></i>
+                                            <h5>No restaurants found</h5>
+                                            <p>Start by adding your first restaurant.</p>
+                                            <a href="{% url 'admin-restaurant-create' %}" class="btn btn-primary">Add Restaurant</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Dishes Section within Restaurants -->
+                    <div class="table-container mt-4">
+                        <h5 class="mb-3"><i class="fas fa-utensils text-success"></i> Recent Dishes</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Dish</th>
+                                        <th class="d-none d-md-table-cell">Restaurant</th>
+                                        <th class="d-none d-lg-table-cell">Price Range</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dish in recent_dishes %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if dish.image %}
+                                                <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ dish.name }}</strong>
+                                                    <div class="d-md-none">
+                                                        <small class="text-muted">{{ dish.restaurant.name }}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="d-none d-md-table-cell">{{ dish.restaurant.name }}</td>
+                                        <td class="d-none d-lg-table-cell">
+                                            {% if dish.servings.all %}
+                                            ₱{{ dish.servings.all.0.price }}
+                                            {% if dish.servings.count > 1 %}
+                                            - ₱{{ dish.servings.all|last.price }}
+                                            {% endif %}
+                                            {% else %}
+                                            <span class="text-muted">No price</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'admin-dish-edit' dish.pk %}" class="btn btn-action btn-primary"><i class="fas fa-edit"></i><span class="d-none d-lg-inline"> Edit</span></a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            <i class="fas fa-utensils fa-2x mb-2 d-block"></i>
+                                            <p>No dishes found. Add restaurants first, then add dishes.</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -359,7 +484,28 @@
             
             // Add active class to clicked nav link
             event.target.classList.add('active');
+            
+            // Hide sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
         }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
     </script>
 </body>
 </html>
