@@ -454,6 +454,8 @@ def admin_dashboard(request):
             'users': User.objects.count(),
             'pending_restaurants': Restaurant.objects.filter(is_approved=False).count(),
             'pending_users': User.objects.filter(is_active=False).count(),
+            'active_restaurants': Restaurant.objects.filter(is_approved=True).count(),
+            'active_users': User.objects.filter(is_active=True, is_superuser=False).count(),
         }
         recent_restos = Restaurant.objects.order_by('-id')[:6]
         recent_dishes = Dish.objects.select_related('restaurant').order_by('-id')[:6]
@@ -472,7 +474,7 @@ def admin_dashboard(request):
     except Exception as e:
         messages.error(request, f"Dashboard error: {str(e)}")
         return render(request, 'admin/dashboard.html', {
-            "stats": {'restaurants': 0, 'dishes': 0, 'users': 0, 'pending_restaurants': 0, 'pending_users': 0},
+            "stats": {'restaurants': 0, 'dishes': 0, 'users': 0, 'pending_restaurants': 0, 'pending_users': 0, 'active_restaurants': 0, 'active_users': 0},
             "recent_restos": [],
             "recent_dishes": [],
             "users": [],
