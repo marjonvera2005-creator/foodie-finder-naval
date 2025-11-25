@@ -129,14 +129,11 @@ def register_view(request):
             user.is_active = True
             user.save()
             messages.success(request, "Admin account created successfully! You can now log in.")
-        elif role == 'restaurant':
-            user.is_active = True  # Auto-approve restaurant accounts
-            user.save()
-            messages.success(request, "Restaurant account created successfully! You can now log in.")
         else:
-            user.is_active = True  # Auto-approve regular users for now
+            # All non-admin users need approval
+            user.is_active = False
             user.save()
-            messages.success(request, "Account created successfully! You can now log in.")
+            messages.success(request, "Account created successfully! Please wait for admin approval before you can log in.")
         
         return redirect('login')
 
@@ -150,7 +147,7 @@ def login_view(request):
         user = authenticate(request, username=email, password=password)
         if user is not None:
             if not user.is_active:
-                messages.warning(request, "Your account is pending admin approval.")
+                messages.warning(request, "Your account is pending admin approval. Please wait for approval before you can log in.")
                 return render(request, 'login.html')
             
             login(request, user)
@@ -166,11 +163,13 @@ def login_view(request):
             except Profile.DoesNotExist:
                 profile = Profile.objects.create(user=user, role='user')
             
-            # Role-based redirection
+            # Role-based redirection for approved users
             if profile.role == 'restaurant':
                 return redirect('restaurant-dashboard')
+            elif profile.role == 'user':
+                return redirect('main')
             
-            # Default to main page for regular users
+            # Default fallback
             return redirect('main')
         messages.error(request, "Invalid email or password.")
         return render(request, 'login.html')
