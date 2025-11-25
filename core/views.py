@@ -142,9 +142,16 @@ def register_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email', '').lower()
-        password = request.POST.get('password', '')
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '').strip()
+        
+        if not email or not password:
+            messages.error(request, "Please enter both email and password.")
+            return render(request, 'login.html')
+        
+        # Try to authenticate
         user = authenticate(request, username=email, password=password)
+        
         if user is not None:
             if not user.is_active:
                 messages.warning(request, "Your account is pending admin approval. Please wait for approval before you can log in.")
@@ -171,8 +178,16 @@ def login_view(request):
             
             # Default fallback
             return redirect('main')
-        messages.error(request, "Invalid email or password.")
-        return render(request, 'login.html')
+        else:
+            # Check if user exists but password is wrong
+            try:
+                existing_user = User.objects.get(username=email)
+                messages.error(request, "Invalid password. Please check your password and try again.")
+            except User.DoesNotExist:
+                messages.error(request, "No account found with this email address.")
+            
+            return render(request, 'login.html')
+    
     return render(request, 'login.html')
 
 
