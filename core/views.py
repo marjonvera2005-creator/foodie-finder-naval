@@ -130,7 +130,7 @@ def register_view(request):
             user.save()
             messages.success(request, "Admin account created successfully! You can now log in.")
         else:
-            # All non-admin users need approval
+            # New non-admin users need approval (existing users stay active)
             user.is_active = False
             user.save()
             messages.success(request, "Registration successful! Your account is pending admin approval. You will be notified once approved.")
