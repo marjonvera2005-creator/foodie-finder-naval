@@ -133,7 +133,7 @@ def register_view(request):
             # All non-admin users need approval
             user.is_active = False
             user.save()
-            messages.success(request, "Account created successfully! Please wait for admin approval before you can log in.")
+            messages.success(request, "Registration successful! Your account is pending admin approval. You will be notified once approved.")
         
         return redirect('login')
 
