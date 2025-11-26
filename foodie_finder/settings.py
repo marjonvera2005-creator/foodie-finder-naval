@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # Allow all hosts for development
+ALLOWED_HOSTS = ['*', 'foodie-finder-naval-2zqm.onrender.com', 'localhost', '127.0.0.1']
 
 # CSRF Settings for debugging
 CSRF_COOKIE_SECURE = False

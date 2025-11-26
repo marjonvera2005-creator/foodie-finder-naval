@@ -66,5 +66,8 @@ urlpatterns = [
     
     # Debug view for testing images
     path('debug/images/', views.debug_images, name='debug-images'),
+    
+    # Test view to force cache refresh
+    path('test/refresh/', views.test_refresh, name='test-refresh'),
 ]
 

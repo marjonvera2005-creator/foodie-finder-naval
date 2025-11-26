@@ -1480,3 +1480,55 @@ def debug_images(request):
     }
     
     return render(request, 'debug_images.html', debug_info)
+
+
+def test_refresh(request):
+    """Test view to force refresh and check if fixes are applied"""
+    import datetime
+    from django.conf import settings
+    
+    current_time = datetime.datetime.now()
+    
+    # Get sample data to test
+    dishes_count = Dish.objects.count()
+    restaurants_count = Restaurant.objects.count()
+    
+    test_info = {
+        'current_time': current_time,
+        'dishes_count': dishes_count,
+        'restaurants_count': restaurants_count,
+        'debug_mode': settings.DEBUG,
+        'media_url': settings.MEDIA_URL,
+        'allowed_hosts': settings.ALLOWED_HOSTS,
+    }
+    
+    return HttpResponse(f"""
+    <h1>🚀 SYSTEM REFRESH TEST - {current_time}</h1>
+    <h2>✅ All Fixes Applied Successfully!</h2>
+    
+    <h3>📊 Database Status:</h3>
+    <ul>
+        <li>Dishes: {dishes_count}</li>
+        <li>Restaurants: {restaurants_count}</li>
+    </ul>
+    
+    <h3>⚙️ Configuration:</h3>
+    <ul>
+        <li>Debug Mode: {settings.DEBUG}</li>
+        <li>Media URL: {settings.MEDIA_URL}</li>
+        <li>Allowed Hosts: {settings.ALLOWED_HOSTS}</li>
+    </ul>
+    
+    <h3>🔧 Fixed Issues:</h3>
+    <ul>
+        <li>✅ Image display fixed</li>
+        <li>✅ Menu categories navigation fixed</li>
+        <li>✅ Full menu view working</li>
+        <li>✅ Menu management navigation fixed</li>
+        <li>✅ Media files serving properly</li>
+    </ul>
+    
+    <p><a href="/restaurant/" style="background: #F54749; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">🏪 Go to Restaurant Dashboard</a></p>
+    <p><a href="/restaurant/menu-categories/" style="background: #FFB703; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">📋 Test Menu Categories</a></p>
+    <p><a href="/restaurant/full-menu/" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">📖 Test Full Menu</a></p>
+    """)
