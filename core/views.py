@@ -1564,6 +1564,18 @@ def all_restaurant_images(request):
         return HttpResponse(f"Error loading images: {str(e)}")
 
 
+@require_http_methods(["POST"])
+def restaurant_image_delete_any(request, img_id: int):
+    """Delete any restaurant image (for admin/cleanup)"""
+    try:
+        img = get_object_or_404(RestaurantImage, pk=img_id)
+        img.delete()
+        messages.success(request, "Image deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Error deleting image: {str(e)}")
+    return redirect('all-images')
+
+
 def fix_images_test(request):
     """Test view to check and fix image serving issues"""
     from django.conf import settings

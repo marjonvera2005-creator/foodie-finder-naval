@@ -72,7 +72,8 @@ urlpatterns = [
     path('test/refresh/', views.test_refresh, name='test-refresh'),
     
     # All restaurant images view
-    path('all-images/', views.all_restaurant_images, name='all-restaurant-images'),
+    path('all-images/', views.all_restaurant_images, name='all-images'),
+    path('images/<int:img_id>/delete/', views.restaurant_image_delete_any, name='restaurant-image-delete'),
     
     # Debug image serving
     path('fix-images-test/', views.fix_images_test, name='fix-images-test'),

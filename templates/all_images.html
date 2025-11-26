@@ -89,15 +89,20 @@
                 {% for image in restaurant_images %}
                 <div class="col-md-4 image-item">
                     <div class="position-relative">
-                        <img src="{{ image.image.url }}" class="gallery-image" alt="{{ image.restaurant.name }}">
-                        <div class="image-overlay">
-                            <form method="post" action="{% url 'restaurant-image-delete' image.pk %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm" 
-                                        onclick="return confirm('Delete this image?')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </form>
+                        <img src="{{ image.image.url }}" class="gallery-image" alt="{{ image.restaurant.name }}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="image-overlay" style="display: none; background: #f8f9fa; color: #6c757d;">
+                            <div class="text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                <p>Image not found</p>
+                                <form method="post" action="{% url 'restaurant-image-delete' image.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Delete this broken image?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="text-center mt-2">
