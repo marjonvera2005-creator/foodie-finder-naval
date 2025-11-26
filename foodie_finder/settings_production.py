@@ -30,11 +30,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Ensure media files are served in production
-if not DEBUG:
-    # Use whitenoise to serve media files in production
-    WHITENOISE_USE_FINDERS = True
-    WHITENOISE_AUTOREFRESH = True
+# Force media files to be served
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2', 'tbz', 'xz', 'br']
+WHITENOISE_MAX_AGE = 0
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True

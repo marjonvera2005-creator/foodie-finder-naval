@@ -124,8 +124,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Force media serving in development
+if DEBUG:
+    import os
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+    os.makedirs(MEDIA_ROOT / 'dishes', exist_ok=True)
+    os.makedirs(MEDIA_ROOT / 'restaurants', exist_ok=True)
+    os.makedirs(MEDIA_ROOT / 'restaurants' / 'gallery', exist_ok=True)
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'main'
