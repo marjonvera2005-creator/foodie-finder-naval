@@ -38,6 +38,26 @@
             font-size: 12px;
             font-weight: 600;
         }
+        .position-relative {
+            position: relative;
+        }
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 10px;
+        }
+        .image-item:hover .image-overlay {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +88,18 @@
             <div class="row">
                 {% for image in restaurant_images %}
                 <div class="col-md-4 image-item">
-                    <img src="{{ image.image.url }}" class="gallery-image" alt="{{ image.restaurant.name }}">
+                    <div class="position-relative">
+                        <img src="{{ image.image.url }}" class="gallery-image" alt="{{ image.restaurant.name }}">
+                        <div class="image-overlay">
+                            <form method="post" action="{% url 'restaurant-image-delete' image.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Delete this image?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                     <div class="text-center mt-2">
                         <span class="restaurant-name">{{ image.restaurant.name }}</span>
                     </div>

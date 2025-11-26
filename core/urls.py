@@ -46,6 +46,7 @@ urlpatterns = [
     path('restaurant/images/', views.restaurant_images, name='restaurant-images'),
     path('restaurant/images/add/', views.restaurant_images_add, name='restaurant-images-add'),
     path('restaurant/images/<int:img_id>/delete/', views.restaurant_image_delete, name='restaurant-image-delete'),
+    path('restaurant/images/<int:img_id>/delete/', views.restaurant_image_delete, name='restaurant-image-delete'),
     path('restaurant/menu-categories/', views.restaurant_menu_categories, name='restaurant-menu-categories'),
     path('restaurant/update-location/', views.restaurant_update_location, name='restaurant-update-location'),
     
