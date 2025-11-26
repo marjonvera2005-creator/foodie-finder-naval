@@ -1246,8 +1246,17 @@ def restaurant_images(request):
             messages.error(request, "No restaurant associated with this account.")
             return redirect('main')
         
-        images = RestaurantImage.objects.filter(restaurant=restaurant).order_by('-id')
-        return render(request, 'restaurant/images.html', {"restaurant": restaurant, "images": images})
+        # Get ALL images from ALL restaurants
+        all_restaurant_images = RestaurantImage.objects.select_related('restaurant').all().order_by('-id')
+        all_dish_images = Dish.objects.filter(image__isnull=False).exclude(image='').select_related('restaurant').order_by('-id')
+        all_restaurant_thumbnails = Restaurant.objects.filter(thumbnail__isnull=False).exclude(thumbnail='').order_by('-id')
+        
+        return render(request, 'restaurant/images.html', {
+            "restaurant": restaurant, 
+            "all_restaurant_images": all_restaurant_images,
+            "all_dish_images": all_dish_images,
+            "all_restaurant_thumbnails": all_restaurant_thumbnails
+        })
     except Exception as e:
         messages.error(request, f"Error loading images: {str(e)}")
         return redirect('restaurant-dashboard')
