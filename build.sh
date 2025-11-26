@@ -10,10 +10,17 @@ mkdir -p media/restaurants
 mkdir -p media/restaurants/gallery
 mkdir -p media/about
 
-# Copy existing media files to static
-cp -r media/* static/ 2>/dev/null || true
+# Create sample images to persist
+echo "Creating sample images..."
+mkdir -p static/sample_images
 
-# Collect static files (includes media)
+# Create placeholder images using base64 data
+echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' | base64 -d > static/sample_images/placeholder.png
+
+# Copy sample images to media
+cp -r static/sample_images/* media/ 2>/dev/null || true
+
+# Collect static files
 python manage.py collectstatic --no-input
 
 # Run migrations
