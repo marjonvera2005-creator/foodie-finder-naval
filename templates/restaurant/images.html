@@ -34,7 +34,12 @@
             <a class="navbar-brand" href="{% url 'restaurant-dashboard' %}">
                 <img src="{% static 'img/LOGO.png' %}" width="30"> Foodie Finder
             </a>
-            <a href="{% url 'restaurant-images-add' %}" class="btn btn-primary">Upload</a>
+            <div>
+                <button onclick="history.back()" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <a href="{% url 'restaurant-images-add' %}" class="btn btn-primary">Upload</a>
+            </div>
         </div>
     </nav>
 
