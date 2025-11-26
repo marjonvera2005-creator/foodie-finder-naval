@@ -30,11 +30,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Force media files to be served
+# Configure whitenoise to serve media files
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2', 'tbz', 'xz', 'br']
 WHITENOISE_MAX_AGE = 0
+
+# Add media files to static files for persistence
+STATICFILES_DIRS.append(MEDIA_ROOT)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Ensure media files persist
+import os
+os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True

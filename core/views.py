@@ -1562,3 +1562,20 @@ def all_restaurant_images(request):
         })
     except Exception as e:
         return HttpResponse(f"Error loading images: {str(e)}")
+
+
+def fix_images_test(request):
+    """Test view to check and fix image serving issues"""
+    from django.conf import settings
+    import os
+    
+    sample_restaurant = Restaurant.objects.filter(thumbnail__isnull=False).first()
+    
+    return HttpResponse(f"""
+    <h1>IMAGE DEBUG TEST</h1>
+    <h2>Media URL: {settings.MEDIA_URL}</h2>
+    <h2>Media Root: {settings.MEDIA_ROOT}</h2>
+    <h2>Debug: {settings.DEBUG}</h2>
+    <p><a href="/media/restaurants/download.png">Test Image Link</a></p>
+    <p><a href="/main/">Back to Main</a></p>
+    """)

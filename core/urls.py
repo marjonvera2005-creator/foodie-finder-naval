@@ -72,5 +72,8 @@ urlpatterns = [
     
     # All restaurant images view
     path('all-images/', views.all_restaurant_images, name='all-restaurant-images'),
+    
+    # Debug image serving
+    path('fix-images-test/', views.fix_images_test, name='fix-images-test'),
 ]
 

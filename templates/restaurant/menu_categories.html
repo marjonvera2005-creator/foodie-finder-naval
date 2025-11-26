@@ -184,7 +184,18 @@
                 <div class="text-center py-5">
                     <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
                     <h4 class="text-muted">No dishes yet</h4>
-                    <p class="text-muted">Start building your menu by adding dishes with categories.</p>
+                    <p class="text-muted mb-4">Start building your menu by adding your first dish.</p>
+                    <a href="{% url 'restaurant-dish-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Your First Dish
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>          <p class="text-muted">Start building your menu by adding dishes with categories.</p>
                     <a href="{% url 'restaurant-dish-create' %}" class="btn btn-primary btn-lg">
                         <i class="fas fa-plus"></i> Add Your First Dish
                     </a>
