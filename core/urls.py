@@ -69,5 +69,8 @@ urlpatterns = [
     
     # Test view to force cache refresh
     path('test/refresh/', views.test_refresh, name='test-refresh'),
+    
+    # All restaurant images view
+    path('all-images/', views.all_restaurant_images, name='all-restaurant-images'),
 ]
 

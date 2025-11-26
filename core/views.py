@@ -1532,3 +1532,24 @@ def test_refresh(request):
     <p><a href="/restaurant/menu-categories/" style="background: #FFB703; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">📋 Test Menu Categories</a></p>
     <p><a href="/restaurant/full-menu/" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">📖 Test Full Menu</a></p>
     """)
+
+
+def all_restaurant_images(request):
+    """View to display ALL images from ALL restaurants"""
+    try:
+        # Get all restaurant images from all restaurants
+        all_images = RestaurantImage.objects.select_related('restaurant').all().order_by('-id')
+        
+        # Get all dish images from all restaurants
+        all_dishes = Dish.objects.filter(image__isnull=False).exclude(image='').select_related('restaurant').order_by('-id')
+        
+        # Get all restaurant thumbnails
+        all_restaurants = Restaurant.objects.filter(thumbnail__isnull=False).exclude(thumbnail='').order_by('-id')
+        
+        return render(request, 'all_images.html', {
+            'restaurant_images': all_images,
+            'dish_images': all_dishes,
+            'restaurant_thumbnails': all_restaurants,
+        })
+    except Exception as e:
+        return HttpResponse(f"Error loading images: {str(e)}")
