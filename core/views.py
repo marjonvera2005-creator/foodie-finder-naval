@@ -1421,3 +1421,62 @@ def admin_about_update(request):
     about_content.save()
     messages.success(request, "About content updated successfully.")
     return redirect('admin-dashboard')
+
+
+@_restaurant_required
+def restaurant_full_menu(request):
+    try:
+        profile = request.user.profile
+        restaurant = profile.restaurant
+        if not restaurant:
+            messages.error(request, "No restaurant associated with this account.")
+            return redirect('main')
+        
+        dishes_by_category = {}
+        dishes = Dish.objects.filter(restaurant=restaurant).prefetch_related('categories', 'servings').order_by('name')
+        
+        for dish in dishes:
+            categories = dish.categories.all()
+            if categories:
+                for category in categories:
+                    cat_name = category.name
+                    if cat_name not in dishes_by_category:
+                        dishes_by_category[cat_name] = []
+                    dishes_by_category[cat_name].append(dish)
+            else:
+                if 'Uncategorized' not in dishes_by_category:
+                    dishes_by_category['Uncategorized'] = []
+                dishes_by_category['Uncategorized'].append(dish)
+        
+        return render(request, 'restaurant/full_menu.html', {
+            "restaurant": restaurant,
+            "dishes_by_category": dishes_by_category
+        })
+    except Exception as e:
+        messages.error(request, f"Error loading full menu: {str(e)}")
+        return redirect('restaurant-dashboard')
+
+
+def debug_images(request):
+    """Debug view to test image serving"""
+    from django.conf import settings
+    import os
+    
+    # Get all dishes with images
+    dishes_with_images = Dish.objects.filter(image__isnull=False).exclude(image='')
+    restaurants_with_images = Restaurant.objects.filter(thumbnail__isnull=False).exclude(thumbnail='')
+    restaurant_images = RestaurantImage.objects.all()
+    
+    # Check media root
+    media_root_exists = os.path.exists(settings.MEDIA_ROOT)
+    
+    debug_info = {
+        'media_url': settings.MEDIA_URL,
+        'media_root': settings.MEDIA_ROOT,
+        'media_root_exists': media_root_exists,
+        'dishes_with_images': dishes_with_images,
+        'restaurants_with_images': restaurants_with_images,
+        'restaurant_images': restaurant_images,
+    }
+    
+    return render(request, 'debug_images.html', debug_info)

@@ -60,5 +60,11 @@ urlpatterns = [
     
     # About content management
     path('console/about/update/', views.admin_about_update, name='admin-about-update'),
+    
+    # Restaurant full menu view
+    path('restaurant/full-menu/', views.restaurant_full_menu, name='restaurant-full-menu'),
+    
+    # Debug view for testing images
+    path('debug/images/', views.debug_images, name='debug-images'),
 ]
 

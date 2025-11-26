@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Images</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Image Debug Information</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Settings</h3>
+                <ul class="list-group">
+                    <li class="list-group-item">Media URL: {{ media_url }}</li>
+                    <li class="list-group-item">Media Root: {{ media_root }}</li>
+                    <li class="list-group-item">Media Root Exists: {{ media_root_exists }}</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Dishes with Images ({{ dishes_with_images.count }})</h3>
+                <div class="row">
+                    {% for dish in dishes_with_images %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>{{ dish.name }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Image Path:</strong> {{ dish.image }}</p>
+                                <p><strong>Image URL:</strong> {{ dish.image.url }}</p>
+                                <img src="{{ dish.image.url }}" class="img-fluid" alt="{{ dish.name }}" style="max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No dishes with images found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Restaurants with Thumbnails ({{ restaurants_with_images.count }})</h3>
+                <div class="row">
+                    {% for restaurant in restaurants_with_images %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>{{ restaurant.name }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Thumbnail Path:</strong> {{ restaurant.thumbnail }}</p>
+                                <p><strong>Thumbnail URL:</strong> {{ restaurant.thumbnail.url }}</p>
+                                <img src="{{ restaurant.thumbnail.url }}" class="img-fluid" alt="{{ restaurant.name }}" style="max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No restaurants with thumbnails found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Restaurant Gallery Images ({{ restaurant_images.count }})</h3>
+                <div class="row">
+                    {% for img in restaurant_images %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>{{ img.restaurant.name }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Image Path:</strong> {{ img.image }}</p>
+                                <p><strong>Image URL:</strong> {{ img.image.url }}</p>
+                                <img src="{{ img.image.url }}" class="img-fluid" alt="{{ img.restaurant.name }}" style="max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No restaurant gallery images found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'restaurant-dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

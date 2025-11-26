@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Menu - {{ restaurant.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('/static/img/background.jpg') center/cover no-repeat fixed;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .category-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            color: white;
+            padding: 20px;
+        }
+        
+        .dish-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .dish-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .dish-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dish-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .price-badge {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .serving-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            {% load static %}
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'restaurant-dashboard' %}">
+                <img src="{% static 'img/LOGO.png' %}" alt="Logo" width="40" height="40" class="me-2">
+                <span style="color: #F54749; font-weight: 700;">Foodie Finder</span>
+            </a>
+            
+            <div class="ms-auto">
+                <a href="{% url 'restaurant-dashboard' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="text-center mb-5">
+                <h1><i class="fas fa-book-open text-primary"></i> {{ restaurant.name }}</h1>
+                <h3 class="text-muted">Complete Menu</h3>
+                <p class="lead">Explore our full selection of delicious dishes</p>
+            </div>
+            
+            {% if dishes_by_category %}
+                {% for category, dishes in dishes_by_category.items %}
+                <div class="category-section">
+                    <div class="category-header">
+                        <h3 class="mb-1">
+                            <i class="fas fa-utensils"></i> {{ category|title }}
+                        </h3>
+                        <p class="mb-0 opacity-75">{{ dishes|length }} dish{{ dishes|length|pluralize:"es" }} available</p>
+                    </div>
+                    
+                    {% for dish in dishes %}
+                    <div class="dish-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center mb-3 mb-md-0">
+                                {% if dish.image %}
+                                <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="dish-image">
+                                {% else %}
+                                <div class="dish-image d-flex align-items-center justify-content-center mx-auto" 
+                                     style="background: linear-gradient(135deg, #F54749, #FFB703); color: white;">
+                                    <i class="fas fa-utensils fa-2x"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="mb-2">{{ dish.name }}</h5>
+                                {% if dish.description %}
+                                <p class="text-muted mb-2">{{ dish.description }}</p>
+                                {% endif %}
+                                
+                                <div class="mb-2">
+                                    {% for serving in dish.servings.all %}
+                                    <span class="serving-badge">{{ serving.get_serving_size_display }} - ₱{{ serving.price }}</span>
+                                    {% empty %}
+                                    <span class="badge bg-warning">No pricing available</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 text-end">
+                                {% if dish.servings.all %}
+                                    {% with servings=dish.servings.all|dictsort:"price" %}
+                                        {% if servings|length == 1 %}
+                                            <div class="price-badge">₱{{ servings.0.price }}</div>
+                                        {% else %}
+                                            <div class="price-badge">₱{{ servings.0.price }} - ₱{{ servings|last.price }}</div>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span class="badge bg-warning fs-6">Price on request</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No dishes in menu yet</h4>
+                    <p class="text-muted">Start building your menu by adding dishes.</p>
+                    <a href="{% url 'restaurant-dish-create' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus"></i> Add Your First Dish
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
