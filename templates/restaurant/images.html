@@ -49,6 +49,16 @@
             object-fit: cover;
             cursor: pointer;
             transition: transform 0.3s ease;
+            display: block;
+        }
+        
+        .gallery-image[src=""], .gallery-image:not([src]) {
+            background: linear-gradient(135deg, #F54749, #FFB703);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
         }
         
         .gallery-image:hover {
@@ -138,18 +148,30 @@
                 {% for image in images %}
                 <div class="col-md-4 col-lg-3 mb-4">
                     <div class="image-card">
+                        {% if image.image %}
                         <img src="{{ image.image.url }}" 
                              class="gallery-image" 
                              alt="Restaurant image"
                              data-bs-toggle="modal" 
                              data-bs-target="#imageModal"
                              data-image-url="{{ image.image.url }}"
-                             data-image-id="{{ image.pk }}">
+                             data-image-id="{{ image.pk }}"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="gallery-image d-none align-items-center justify-content-center" 
+                             style="background: linear-gradient(135deg, #F54749, #FFB703); color: white;">
+                            <i class="fas fa-image fa-3x"></i>
+                        </div>
+                        {% else %}
+                        <div class="gallery-image d-flex align-items-center justify-content-center" 
+                             style="background: linear-gradient(135deg, #F54749, #FFB703); color: white;">
+                            <i class="fas fa-image fa-3x"></i>
+                        </div>
+                        {% endif %}
                         
                         <div class="card-body text-center p-3">
                             <small class="text-muted d-block mb-2">
-                                <i class="fas fa-calendar"></i> 
-                                {{ image.created_at|default:"Recently added"|date:"M d, Y" }}
+                                <i class="fas fa-image"></i> 
+                                Restaurant Gallery
                             </small>
                             
                             <form method="post" action="{% url 'restaurant-image-delete' image.pk %}" class="d-inline">
