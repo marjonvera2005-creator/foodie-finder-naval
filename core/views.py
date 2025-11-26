@@ -1042,14 +1042,18 @@ def restaurant_edit(request):
 
 @_restaurant_required
 def restaurant_dishes(request):
-    profile = request.user.profile
-    restaurant = profile.restaurant
-    if not restaurant:
-        messages.error(request, "No restaurant associated with this account.")
-        return redirect('main')
-    
-    dishes = Dish.objects.filter(restaurant=restaurant).order_by('name')
-    return render(request, 'restaurant/dishes.html', {"dishes": dishes, "restaurant": restaurant})
+    try:
+        profile = request.user.profile
+        restaurant = profile.restaurant
+        if not restaurant:
+            messages.error(request, "No restaurant associated with this account.")
+            return redirect('main')
+        
+        dishes = Dish.objects.filter(restaurant=restaurant).prefetch_related('servings', 'categories').order_by('name')
+        return render(request, 'restaurant/dishes.html', {"dishes": dishes, "restaurant": restaurant})
+    except Exception as e:
+        messages.error(request, f"Error loading dishes: {str(e)}")
+        return redirect('restaurant-dashboard')
 
 
 @_restaurant_required
@@ -1092,17 +1096,20 @@ def restaurant_dish_create(request):
                             price=float(price)
                         )
                         created_servings += 1
-                    except ValueError:
+                    except (ValueError, Exception):
                         pass
             
             # If no servings created, create a default one
             if created_servings == 0:
-                DishServing.objects.create(
-                    dish=dish,
-                    serving_size='solo',
-                    price=100.00
-                )
-                messages.success(request, "Dish created with default solo serving (₱100).")
+                try:
+                    DishServing.objects.create(
+                        dish=dish,
+                        serving_size='solo',
+                        price=100.00
+                    )
+                    messages.success(request, "Dish created with default solo serving (₱100).")
+                except Exception:
+                    messages.success(request, "Dish created successfully.")
             else:
                 messages.success(request, f"Dish created with {created_servings} serving options.")
             
@@ -1111,13 +1118,16 @@ def restaurant_dish_create(request):
             messages.error(request, "Please provide a dish name.")
     
     # Get or create default categories
-    categories = Category.objects.all().order_by('name')
-    if not categories.exists():
-        # Create default categories
-        default_categories = ['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Snack']
-        for cat_name in default_categories:
-            Category.objects.get_or_create(name=cat_name)
+    try:
         categories = Category.objects.all().order_by('name')
+        if not categories.exists():
+            # Create default categories
+            default_categories = ['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Snack']
+            for cat_name in default_categories:
+                Category.objects.get_or_create(name=cat_name)
+            categories = Category.objects.all().order_by('name')
+    except Exception:
+        categories = []
     
     return render(request, 'restaurant/dish_form.html', {
         "restaurant": restaurant, 
@@ -1229,38 +1239,49 @@ def restaurant_dish_delete(request, pk: int):
 
 @_restaurant_required
 def restaurant_images(request):
-    profile = request.user.profile
-    restaurant = profile.restaurant
-    if not restaurant:
-        messages.error(request, "No restaurant associated with this account.")
-        return redirect('main')
-    
-    images = RestaurantImage.objects.filter(restaurant=restaurant).order_by('-id')
-    return render(request, 'restaurant/images.html', {"restaurant": restaurant, "images": images})
+    try:
+        profile = request.user.profile
+        restaurant = profile.restaurant
+        if not restaurant:
+            messages.error(request, "No restaurant associated with this account.")
+            return redirect('main')
+        
+        images = RestaurantImage.objects.filter(restaurant=restaurant).order_by('-id')
+        return render(request, 'restaurant/images.html', {"restaurant": restaurant, "images": images})
+    except Exception as e:
+        messages.error(request, f"Error loading images: {str(e)}")
+        return redirect('restaurant-dashboard')
 
 
 @_restaurant_required
 @require_http_methods(["GET", "POST"])
 def restaurant_images_add(request):
-    profile = request.user.profile
-    restaurant = profile.restaurant
-    if not restaurant:
-        messages.error(request, "No restaurant associated with this account.")
-        return redirect('main')
-    
-    if request.method == 'POST':
-        files = request.FILES.getlist('images')
-        created = 0
-        for f in files:
-            RestaurantImage.objects.create(restaurant=restaurant, image=f)
-            created += 1
-        if created:
-            messages.success(request, f"Uploaded {created} image(s) successfully.")
-        else:
-            messages.error(request, "Please choose image files to upload.")
+    try:
+        profile = request.user.profile
+        restaurant = profile.restaurant
+        if not restaurant:
+            messages.error(request, "No restaurant associated with this account.")
+            return redirect('main')
+        
+        if request.method == 'POST':
+            files = request.FILES.getlist('images')
+            created = 0
+            for f in files:
+                try:
+                    RestaurantImage.objects.create(restaurant=restaurant, image=f)
+                    created += 1
+                except Exception:
+                    pass
+            if created:
+                messages.success(request, f"Uploaded {created} image(s) successfully.")
+            else:
+                messages.error(request, "Please choose image files to upload.")
+            return redirect('restaurant-images')
+        
+        return render(request, 'restaurant/image_upload.html', {"restaurant": restaurant})
+    except Exception as e:
+        messages.error(request, f"Error uploading images: {str(e)}")
         return redirect('restaurant-images')
-    
-    return render(request, 'restaurant/image_upload.html', {"restaurant": restaurant})
 
 
 @_restaurant_required
@@ -1332,32 +1353,36 @@ def admin_user_delete(request, pk: int):
 
 @_restaurant_required
 def restaurant_menu_categories(request):
-    profile = request.user.profile
-    restaurant = profile.restaurant
-    if not restaurant:
-        messages.error(request, "No restaurant associated with this account.")
-        return redirect('main')
-    
-    dishes_by_category = {}
-    dishes = Dish.objects.filter(restaurant=restaurant).prefetch_related('categories').order_by('name')
-    
-    for dish in dishes:
-        categories = dish.categories.all()
-        if categories:
-            for category in categories:
-                cat_name = category.name
-                if cat_name not in dishes_by_category:
-                    dishes_by_category[cat_name] = []
-                dishes_by_category[cat_name].append(dish)
-        else:
-            if 'Uncategorized' not in dishes_by_category:
-                dishes_by_category['Uncategorized'] = []
-            dishes_by_category['Uncategorized'].append(dish)
-    
-    return render(request, 'restaurant/menu_categories.html', {
-        "restaurant": restaurant,
-        "dishes_by_category": dishes_by_category
-    })
+    try:
+        profile = request.user.profile
+        restaurant = profile.restaurant
+        if not restaurant:
+            messages.error(request, "No restaurant associated with this account.")
+            return redirect('main')
+        
+        dishes_by_category = {}
+        dishes = Dish.objects.filter(restaurant=restaurant).prefetch_related('categories', 'servings').order_by('name')
+        
+        for dish in dishes:
+            categories = dish.categories.all()
+            if categories:
+                for category in categories:
+                    cat_name = category.name
+                    if cat_name not in dishes_by_category:
+                        dishes_by_category[cat_name] = []
+                    dishes_by_category[cat_name].append(dish)
+            else:
+                if 'Uncategorized' not in dishes_by_category:
+                    dishes_by_category['Uncategorized'] = []
+                dishes_by_category['Uncategorized'].append(dish)
+        
+        return render(request, 'restaurant/menu_categories.html', {
+            "restaurant": restaurant,
+            "dishes_by_category": dishes_by_category
+        })
+    except Exception as e:
+        messages.error(request, f"Error loading menu categories: {str(e)}")
+        return redirect('restaurant-dashboard')
 
 
 @_restaurant_required

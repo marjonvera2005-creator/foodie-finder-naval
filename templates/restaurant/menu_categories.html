@@ -38,16 +38,10 @@
             overflow: hidden;
         }
         
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-        
         .category-header {
             background: linear-gradient(135deg, #F54749, #FFB703);
             color: white;
             padding: 20px;
-            border-radius: 15px 15px 0 0;
         }
         
         .dish-item {
@@ -56,11 +50,6 @@
             padding: 15px;
             margin-bottom: 15px;
             transition: all 0.3s ease;
-        }
-        
-        .dish-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
         }
         
         .dish-image {
@@ -86,31 +75,9 @@
             padding: 10px 25px;
             font-weight: 600;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 71, 73, 0.3);
-        }
-        
-        .action-btn {
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .stats-card {
-            background: linear-gradient(135deg, #F54749, #FFB703);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             {% load static %}
@@ -132,7 +99,6 @@
 
     <div class="container">
         <div class="main-content">
-            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2><i class="fas fa-list text-primary"></i> Menu Categories</h2>
@@ -145,49 +111,14 @@
                 </div>
             </div>
             
-            <!-- Menu Statistics -->
-            <div class="stats-card">
-                <div class="row">
-                    <div class="col-md-3 text-center">
-                        <h3>{{ dishes_by_category|length }}</h3>
-                        <small>Categories</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3>
-                            {% for category, dishes in dishes_by_category.items %}
-                                {% if forloop.first %}{{ dishes|length }}{% endif %}
-                                {% if not forloop.first %}{{ dishes|length|add:forloop.counter0 }}{% endif %}
-                            {% empty %}0{% endfor %}
-                        </h3>
-                        <small>Total Dishes</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3>{{ restaurant.name|truncatechars:10 }}</h3>
-                        <small>Restaurant</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3><i class="fas fa-check-circle"></i></h3>
-                        <small>Menu Active</small>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Categories -->
             {% if dishes_by_category %}
                 {% for category, dishes in dishes_by_category.items %}
                 <div class="category-card">
                     <div class="category-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 class="mb-1">
-                                    <i class="fas fa-utensils"></i> {{ category|title }}
-                                </h4>
-                                <small>{{ dishes|length }} dish{{ dishes|length|pluralize:"es" }}</small>
-                            </div>
-                            <div>
-                                <span class="badge bg-light text-dark">{{ dishes|length }}</span>
-                            </div>
-                        </div>
+                        <h4 class="mb-1">
+                            <i class="fas fa-utensils"></i> {{ category|title }}
+                        </h4>
+                        <small>{{ dishes|length }} dish{{ dishes|length|pluralize:"es" }}</small>
                     </div>
                     
                     <div class="card-body p-4">
@@ -196,7 +127,6 @@
                             <div class="col-md-6 mb-3">
                                 <div class="dish-item">
                                     <div class="d-flex align-items-center">
-                                        <!-- Dish Image -->
                                         <div class="me-3">
                                             {% if dish.image %}
                                             <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="dish-image">
@@ -208,11 +138,9 @@
                                             {% endif %}
                                         </div>
                                         
-                                        <!-- Dish Info -->
                                         <div class="flex-grow-1">
                                             <h6 class="mb-1">{{ dish.name }}</h6>
                                             
-                                            <!-- Price Information -->
                                             <div class="mb-2">
                                                 {% if dish.servings.all %}
                                                     {% with servings=dish.servings.all|dictsort:"price" %}
@@ -227,30 +155,17 @@
                                                 {% endif %}
                                             </div>
                                             
-                                            <!-- Serving Sizes -->
-                                            <div class="mb-2">
-                                                {% for serving in dish.servings.all %}
-                                                    <small class="badge bg-light text-dark me-1">
-                                                        {{ serving.get_serving_size_display }} - ₱{{ serving.price }}
-                                                    </small>
-                                                {% empty %}
-                                                    <small class="badge bg-warning">No servings</small>
-                                                {% endfor %}
-                                            </div>
-                                            
-                                            <!-- Description -->
                                             {% if dish.description %}
                                             <p class="text-muted small mb-2">{{ dish.description|truncatewords:10 }}</p>
                                             {% endif %}
                                             
-                                            <!-- Actions -->
                                             <div class="d-flex gap-1">
-                                                <a href="{% url 'restaurant-dish-edit' dish.pk %}" class="btn btn-outline-primary action-btn">
+                                                <a href="{% url 'restaurant-dish-edit' dish.pk %}" class="btn btn-outline-primary btn-sm">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
                                                 <form method="post" action="{% url 'restaurant-dish-delete' dish.pk %}" class="d-inline">
                                                     {% csrf_token %}
-                                                    <button type="submit" class="btn btn-outline-danger action-btn" 
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" 
                                                             onclick="return confirm('Delete {{ dish.name }}?')">
                                                         <i class="fas fa-trash"></i> Delete
                                                     </button>
@@ -266,7 +181,6 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <!-- Empty State -->
                 <div class="text-center py-5">
                     <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
                     <h4 class="text-muted">No dishes yet</h4>
@@ -276,70 +190,9 @@
                     </a>
                 </div>
             {% endif %}
-            
-            <!-- Quick Actions -->
-            <div class="mt-4 p-3 bg-light rounded">
-                <h6><i class="fas fa-bolt text-warning"></i> Quick Actions</h6>
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'restaurant-dish-create' %}" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-plus"></i> Add Dish
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'restaurant-dishes' %}" class="btn btn-outline-info w-100">
-                            <i class="fas fa-list"></i> All Dishes
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'restaurant-images' %}" class="btn btn-outline-success w-100">
-                            <i class="fas fa-images"></i> Gallery
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'restaurant-edit' %}" class="btn btn-outline-warning w-100">
-                            <i class="fas fa-edit"></i> Edit Info
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Smooth scrolling for category navigation
-        function scrollToCategory(categoryName) {
-            const element = document.getElementById(`category-${categoryName}`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-        
-        // Add category navigation if there are many categories
-        if (document.querySelectorAll('.category-card').length > 3) {
-            const navigation = document.createElement('div');
-            navigation.className = 'category-navigation mb-4 p-3 bg-light rounded';
-            navigation.innerHTML = '<h6><i class="fas fa-compass"></i> Jump to Category:</h6>';
-            
-            const categories = document.querySelectorAll('.category-card .category-header h4');
-            categories.forEach((category, index) => {
-                const categoryName = category.textContent.trim().replace('🍽️ ', '');
-                const button = document.createElement('button');
-                button.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
-                button.textContent = categoryName;
-                button.onclick = () => {
-                    category.closest('.category-card').scrollIntoView({ behavior: 'smooth' });
-                };
-                navigation.appendChild(button);
-            });
-            
-            const mainContent = document.querySelector('.main-content');
-            const firstCategoryCard = document.querySelector('.category-card');
-            if (firstCategoryCard) {
-                mainContent.insertBefore(navigation, firstCategoryCard);
-            }
-        }
-    </script>
 </body>
 </html>
