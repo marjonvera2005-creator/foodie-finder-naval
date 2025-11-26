@@ -27,7 +27,7 @@
         <div class="row">
             {% for image in all_restaurant_images %}
             <div class="col-md-3 mb-3">
-                <img src="{{ image.image.url }}" class="img-box" alt="Image">
+                <img src="{{ image.image.url }}" class="img-box" alt="Image" onerror="this.src='/static/img/placeholder.jpg'">
                 <div class="name-tag mt-1">{{ image.restaurant.name }}</div>
             </div>
             {% endfor %}
@@ -39,7 +39,7 @@
         <div class="row">
             {% for dish in all_dish_images %}
             <div class="col-md-3 mb-3">
-                <img src="{{ dish.image.url }}" class="img-box" alt="Dish">
+                <img src="{{ dish.image.url }}" class="img-box" alt="Dish" onerror="this.src='/static/img/placeholder.jpg'">
                 <div class="name-tag mt-1">{{ dish.restaurant.name }} - {{ dish.name }}</div>
             </div>
             {% endfor %}
@@ -51,7 +51,7 @@
         <div class="row">
             {% for restaurant in all_restaurant_thumbnails %}
             <div class="col-md-3 mb-3">
-                <img src="{{ restaurant.thumbnail.url }}" class="img-box" alt="Logo">
+                <img src="{{ restaurant.thumbnail.url }}" class="img-box" alt="Logo" onerror="this.src='/static/img/placeholder.jpg'">
                 <div class="name-tag mt-1">{{ restaurant.name }}</div>
             </div>
             {% endfor %}
@@ -64,6 +64,10 @@
             <a href="{% url 'restaurant-images-add' %}" class="btn btn-primary">Upload First Image</a>
         </div>
         {% endif %}
+        
+        <div class="mt-4">
+            <p>Debug: Total images found: {{ all_restaurant_images|length|add:all_dish_images|length|add:all_restaurant_thumbnails|length }}</p>
+        </div>
     </div>
 </body>
 </html>
