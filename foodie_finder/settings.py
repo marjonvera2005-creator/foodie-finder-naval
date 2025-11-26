@@ -24,9 +24,9 @@ SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5
 
 # Cloudinary settings for permanent image storage
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'foodie-finder',
-    'API_KEY': '123456789012345',
-    'API_SECRET': 'abcdefghijklmnopqrstuvwxyz123456'
+    'CLOUD_NAME': 'dhmzswzzn',
+    'API_KEY': '937459153621843',
+    'API_SECRET': '4x75WNuUUl08vxZTRvGMv1paxCg'
 }
 
 # Use Cloudinary for media files
