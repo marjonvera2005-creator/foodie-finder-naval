@@ -20,7 +20,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5'
+SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5
+
+# Cloudinary settings for permanent image storage
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'foodie-finder',
+    'API_KEY': '123456789012345',
+    'API_SECRET': 'abcdefghijklmnopqrstuvwxyz123456'
+}
+
+# Use Cloudinary for media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'core.apps.CoreConfig',
 ]
 
