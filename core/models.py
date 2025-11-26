@@ -56,6 +56,10 @@ class Dish(models.Model):
     def get_min_price(self):
         serving = self.servings.first()
         return serving.price if serving else 0
+    
+    @property
+    def price(self):
+        return self.get_min_price()
 
     def is_affordable(self) -> bool:
         return self.get_min_price() <= 199

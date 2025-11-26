@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 
-from .models import Restaurant, Dish, RestaurantImage, Profile
+from .models import Restaurant, Dish, RestaurantImage, Profile, Category, DishServing
 
 
 # Food vocabulary by category and letter
@@ -1079,7 +1079,6 @@ def restaurant_dish_create(request):
                 dish.categories.set(category_ids)
             
             # Handle serving sizes and prices
-            from .models import DishServing
             serving_sizes = ['solo', 'sharing', 'family', 'party']
             created_servings = 0
             
@@ -1096,16 +1095,30 @@ def restaurant_dish_create(request):
                     except ValueError:
                         pass
             
-            if created_servings > 0:
-                messages.success(request, f"Dish created with {created_servings} serving options.")
+            # If no servings created, create a default one
+            if created_servings == 0:
+                DishServing.objects.create(
+                    dish=dish,
+                    serving_size='solo',
+                    price=100.00
+                )
+                messages.success(request, "Dish created with default solo serving (₱100).")
             else:
-                messages.warning(request, "Dish created but no serving sizes added. Please add at least one serving size.")
+                messages.success(request, f"Dish created with {created_servings} serving options.")
+            
             return redirect('restaurant-dishes')
         else:
             messages.error(request, "Please provide a dish name.")
     
-    from .models import Category
+    # Get or create default categories
     categories = Category.objects.all().order_by('name')
+    if not categories.exists():
+        # Create default categories
+        default_categories = ['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Snack']
+        for cat_name in default_categories:
+            Category.objects.get_or_create(name=cat_name)
+        categories = Category.objects.all().order_by('name')
+    
     return render(request, 'restaurant/dish_form.html', {
         "restaurant": restaurant, 
         "mode": "Create",
@@ -1141,8 +1154,8 @@ def restaurant_dish_edit(request, pk: int):
             dish.categories.set(category_ids)
             
             # Update serving sizes and prices
-            from .models import DishServing
             serving_sizes = ['solo', 'sharing', 'family', 'party']
+            updated_servings = 0
             
             for size in serving_sizes:
                 price = request.POST.get(f'price_{size}', '').strip()
@@ -1160,18 +1173,37 @@ def restaurant_dish_edit(request, pk: int):
                                 serving_size=size,
                                 price=price_val
                             )
+                        updated_servings += 1
                     except ValueError:
                         pass
                 elif serving:
                     serving.delete()
             
-            messages.success(request, "Dish updated successfully.")
+            # Ensure at least one serving exists
+            if updated_servings == 0 and not dish.servings.exists():
+                DishServing.objects.create(
+                    dish=dish,
+                    serving_size='solo',
+                    price=100.00
+                )
+            
+            if updated_servings > 0:
+                messages.success(request, f"Dish updated with {updated_servings} serving options.")
+            else:
+                messages.success(request, "Dish updated successfully.")
             return redirect('restaurant-dishes')
         else:
             messages.error(request, "Please provide a dish name.")
     
-    from .models import Category
+    # Get or create default categories
     categories = Category.objects.all().order_by('name')
+    if not categories.exists():
+        # Create default categories
+        default_categories = ['Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Snack']
+        for cat_name in default_categories:
+            Category.objects.get_or_create(name=cat_name)
+        categories = Category.objects.all().order_by('name')
+    
     return render(request, 'restaurant/dish_form.html', {
         "restaurant": restaurant, 
         "dish": dish, 
