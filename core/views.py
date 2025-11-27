@@ -1577,17 +1577,22 @@ def restaurant_image_delete_any(request, img_id: int):
 
 
 def fix_images_test(request):
-    """Test view to check and fix image serving issues"""
+    """Test Cloudinary configuration"""
+    import cloudinary
     from django.conf import settings
-    import os
+    
+    config_info = {
+        'cloud_name': cloudinary.config().cloud_name,
+        'api_key': cloudinary.config().api_key,
+        'secure': cloudinary.config().secure,
+        'default_storage': settings.DEFAULT_FILE_STORAGE
+    }
     
     sample_restaurant = Restaurant.objects.filter(thumbnail__isnull=False).first()
     
     return HttpResponse(f"""
-    <h1>IMAGE DEBUG TEST</h1>
-    <h2>Media URL: {settings.MEDIA_URL}</h2>
-    <h2>Media Root: {settings.MEDIA_ROOT}</h2>
-    <h2>Debug: {settings.DEBUG}</h2>
-    <p><a href="/media/restaurants/download.png">Test Image Link</a></p>
+    <h1>CLOUDINARY TEST</h1>
+    <h2>Config: {config_info['cloud_name']}</h2>
+    <h2>Storage: {config_info['default_storage']}</h2>
     <p><a href="/main/">Back to Main</a></p>
     """)

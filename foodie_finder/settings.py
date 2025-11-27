@@ -22,7 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5'
 
-# Cloudinary settings for permanent image storage
+# Cloudinary configuration
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+cloudinary.config(
+    cloud_name='dhmzswzzn',
+    api_key='937459153621843',
+    api_secret='4x75WNuUUl08vxZTRvGMv1paxCg',
+    secure=True
+)
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dhmzswzzn',
     'API_KEY': '937459153621843',
@@ -136,16 +147,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Media files are handled by Cloudinary
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Force media serving in development
-if DEBUG:
-    import os
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
-    os.makedirs(MEDIA_ROOT / 'dishes', exist_ok=True)
-    os.makedirs(MEDIA_ROOT / 'restaurants', exist_ok=True)
-    os.makedirs(MEDIA_ROOT / 'restaurants' / 'gallery', exist_ok=True)
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'main'
