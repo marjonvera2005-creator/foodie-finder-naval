@@ -1,18 +1,15 @@
 services:
   - type: web
-    name: foodie-finder
+    name: foodie-finder-naval
     env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn foodie_finder.wsgi --log-file -"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn foodie_finder.wsgi:application
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: foodie_finder.settings_production
-      - key: SECRET_KEY
-        generateValue: true
       - key: DEBUG
         value: "False"
-
-databases:
-  - name: foodie-finder-db
-    databaseName: foodie_finder
-    user: foodie_finder
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "dhmzswzzn"
+      - key: CLOUDINARY_API_KEY
+        value: "937459153621843"
+      - key: CLOUDINARY_API_SECRET
+        value: "4x75WNuUUl08vxZTRvGMv1paxCg"

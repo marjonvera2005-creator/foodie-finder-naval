@@ -23,28 +23,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1*iux(8r9%qq&rguv^j0k5x9)n=-9v5d#95p#r%$y9j_q%b0+5'
 
 # Cloudinary configuration
+import os
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+# Cloudinary settings
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dhmzswzzn'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '937459153621843'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', '4x75WNuUUl08vxZTRvGMv1paxCg'),
+}
+
 cloudinary.config(
-    cloud_name='dhmzswzzn',
-    api_key='937459153621843',
-    api_secret='4x75WNuUUl08vxZTRvGMv1paxCg',
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
     secure=True
 )
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dhmzswzzn',
-    'API_KEY': '937459153621843',
-    'API_SECRET': '4x75WNuUUl08vxZTRvGMv1paxCg'
-}
 
 # Use Cloudinary for media files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = ['*', 'foodie-finder-naval-2zqm.onrender.com', 'localhost', '127.0.0.1']
 
