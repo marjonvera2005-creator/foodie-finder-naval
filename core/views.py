@@ -1596,3 +1596,18 @@ def fix_images_test(request):
     <h2>Storage: {config_info['default_storage']}</h2>
     <p><a href="/main/">Back to Main</a></p>
     """)
+
+
+def cleanup_broken_images(request):
+    """Clean up all broken restaurant images"""
+    try:
+        deleted_count = RestaurantImage.objects.all().count()
+        RestaurantImage.objects.all().delete()
+        return HttpResponse(f"""
+        <h1>✅ CLEANUP COMPLETE!</h1>
+        <p>Deleted {deleted_count} restaurant gallery images</p>
+        <p><a href="/all-images/">View All Images</a></p>
+        <p><a href="/main/">Back to Main</a></p>
+        """)
+    except Exception as e:
+        return HttpResponse(f"Error during cleanup: {str(e)}")

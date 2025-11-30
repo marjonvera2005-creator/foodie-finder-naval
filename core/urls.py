@@ -79,3 +79,4 @@ urlpatterns = [
     path('fix-images-test/', views.fix_images_test, name='fix-images-test'),
 ]
 
+    path('cleanup-images/', views.cleanup_broken_images, name='cleanup-images'),
