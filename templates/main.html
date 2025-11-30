@@ -108,14 +108,26 @@
                 {% if r.dishes.all %}
                     <div class="restaurant-menu-list">
                         {% for dish in r.dishes.all|slice:":4" %}
-                        <div class="restaurant-menu-item">
-                            <div class="menu-item-info">
+                        <div class="restaurant-menu-item" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="menu-item-info" style="flex: 1;">
                                 <span class="restaurant-menu-name">{{ dish.name }}</span>
                                 {% if dish.dish_category %}
                                     <span class="restaurant-menu-tag">{{ dish.dish_category }}</span>
                                 {% endif %}
                             </div>
-                            <span class="restaurant-menu-price">₱{{ dish.price }}</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="restaurant-menu-price">₱{{ dish.price }}</span>
+                                {% if user.is_authenticated and user.profile.role == 'restaurant' and user.profile.restaurant == r %}
+                                <form method="post" action="{% url 'restaurant-dish-delete' dish.pk %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Delete {{ dish.name }}?')" 
+                                            style="background: #dc3545; border: none; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endfor %}
                         

@@ -49,27 +49,39 @@
       <h2 style="margin-top:18px">Menu</h2>
       <div class="menu">
         {% for d in restaurant.dishes.all %}
-        <div class="menu-row" onclick="showDishModal('{{ d.name|escapejs }}', '{{ d.description|escapejs }}', '{% for cat in d.categories.all %}{{ cat.name }}{% if not forloop.last %}, {% endif %}{% endfor %}', '{% if d.image %}{{ d.image.url }}{% endif %}', [{% for s in d.servings.all %}{'size': '{{ s.get_serving_size_display }}', 'price': '{{ s.price }}'}{% if not forloop.last %},{% endif %}{% endfor %}])" style="cursor: pointer;">
-          <span class="dish-name">{{ d.name }}</span>
-          <span class="price-range">
-            {% if d.servings.all %}
-              {% with servings=d.servings.all|dictsort:"price" %}
-                {% if servings|length == 1 %}
-                  ₱{{ servings.0.price }}
-                {% else %}
-                  {% for serving in servings %}
-                    {% if forloop.first %}
-                      ₱{{ serving.price }} - 
-                    {% elif forloop.last %}
-                      ₱{{ serving.price }}
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
-              {% endwith %}
-            {% else %}
-              Price TBA
-            {% endif %}
-          </span>
+        <div class="menu-row" style="display: flex; align-items: center; justify-content: space-between;">
+          <div onclick="showDishModal('{{ d.name|escapejs }}', '{{ d.description|escapejs }}', '{% for cat in d.categories.all %}{{ cat.name }}{% if not forloop.last %}, {% endif %}{% endfor %}', '{% if d.image %}{{ d.image.url }}{% endif %}', [{% for s in d.servings.all %}{'size': '{{ s.get_serving_size_display }}', 'price': '{{ s.price }}'}{% if not forloop.last %},{% endif %}{% endfor %}])" style="cursor: pointer; flex: 1; display: flex; justify-content: space-between; align-items: center;">
+            <span class="dish-name">{{ d.name }}</span>
+            <span class="price-range">
+              {% if d.servings.all %}
+                {% with servings=d.servings.all|dictsort:"price" %}
+                  {% if servings|length == 1 %}
+                    ₱{{ servings.0.price }}
+                  {% else %}
+                    {% for serving in servings %}
+                      {% if forloop.first %}
+                        ₱{{ serving.price }} - 
+                      {% elif forloop.last %}
+                        ₱{{ serving.price }}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+              {% else %}
+                Price TBA
+              {% endif %}
+            </span>
+          </div>
+          {% if user.is_authenticated and user.profile.role == 'restaurant' and user.profile.restaurant == restaurant %}
+          <form method="post" action="{% url 'restaurant-dish-delete' d.pk %}" style="margin-left: 10px;" onclick="event.stopPropagation();">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm" 
+                    onclick="return confirm('Delete {{ d.name }}?')" 
+                    style="background: #dc3545; border: none; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+          {% endif %}
         </div>
         {% empty %}
         <p class="muted">Menu coming soon.</p>
@@ -185,6 +197,19 @@ document.addEventListener('keydown', function(event) {
 </script>
 
 <style>
+.menu-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.menu-row:last-child {
+  border-bottom: none;
+}
+
+.btn-danger:hover {
+  background: #c82333 !important;
+}
+
 /* Modal Styles */
 .modal {
   display: none;
