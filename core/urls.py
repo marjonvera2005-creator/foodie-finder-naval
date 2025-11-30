@@ -76,7 +76,6 @@ urlpatterns = [
     path('images/<int:img_id>/delete/', views.restaurant_image_delete_any, name='restaurant-image-delete'),
     
     # Debug image serving
+    path('cleanup-images/', views.cleanup_broken_images, name='cleanup-images'),
     path('fix-images-test/', views.fix_images_test, name='fix-images-test'),
 ]
-
-    path('cleanup-images/', views.cleanup_broken_images, name='cleanup-images'),
